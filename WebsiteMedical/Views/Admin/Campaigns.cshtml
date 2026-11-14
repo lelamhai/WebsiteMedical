@@ -2,6 +2,7 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Quản lý chiến dịch";
+    var currentUserToken = Context.Request.Cookies["AccessToken"] ?? "";
 }
 
 <!-- BẢNG DANH SÁCH CHIẾN DỊCH -->
@@ -127,36 +128,181 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formCreateCampaign">
+                <!-- Thông báo kết quả -->
+                <div id="createCampaignAlert" class="alert d-none mb-3" role="alert"></div>
+
+                <form id="formCreateCampaign" novalidate>
                     <div class="row g-3">
+                        <!-- Tên chiến dịch (Full width) -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Tên chương trình / Chiến dịch <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" placeholder="Ví dụ: Chiến dịch hiến máu tình nguyện PTIT 2026" required>
+                            <label class="form-label fw-semibold" for="inputTitle">
+                                Tên chiến dịch <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="inputTitle" class="form-control"
+                                   placeholder="Ví dụ: Giọt Máu Hồng - Hè Tình Nguyện 2026" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Thời gian tổ chức <span class="text-danger">*</span></label>
-                            <input type="datetime-local" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Số lượng Cán bộ y tế dự kiến</label>
-                            <input type="number" class="form-control" placeholder="Ví dụ: 3" min="1" value="3">
-                        </div>
+
+                        <!-- Địa điểm tổ chức (Full width) -->
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Địa điểm tổ chức <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" placeholder="Ví dụ: Hội trường A, Học viện PTIT" required>
+                            <label class="form-label fw-semibold" for="inputLocation">
+                                Địa điểm tổ chức <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="inputLocation" class="form-control"
+                                   placeholder="Ví dụ: Hội trường A, Học viện PTIT, Hà Nội" required>
+                        </div>
+
+                        <!-- 1) Ngày & giờ tổ chức: FULL WIDTH -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="inputEventDate">
+                                Ngày &amp; giờ tổ chức <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" id="inputEventDate" class="form-control" required>
+                            <div class="form-text text-muted small">Thời gian này sẽ được dùng làm <code>shiftTime</code> cho các ca trực của cán bộ.</div>
+                        </div>
+
+                        <!-- 2) Phân công Cán bộ y tế: FULL WIDTH -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="staffSearchInput">Phân công cán bộ y tế</label>
+                            
+                            <!-- Khung tìm kiếm cán bộ dạng dropdown -->
+                            <div class="position-relative">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white text-muted">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                    </span>
+                                    <input type="text" id="staffSearchInput" class="form-control"
+                                           placeholder="Nhập tên hoặc email cán bộ để tìm kiếm..." autocomplete="off"
+                                           onfocus="if (this.value.trim()) onStaffSearchInput(this.value)" 
+                                           oninput="onStaffSearchInput(this.value)">
+                                </div>
+
+                                <!-- Dropdown danh sách cán bộ y tế -->
+                                <div id="staffDropdownMenu" class="dropdown-menu w-100 shadow border p-1 mt-1" 
+                                     style="max-height: 240px; overflow-y: auto; display: none; z-index: 1060;">
+                                    <!-- Render danh sách cán bộ qua JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Danh sách cán bộ đã được chọn hiển thị phía dưới (Theo hình số 2) -->
+                            <div class="mt-3">
+                                <div class="small text-muted mb-2 d-none" id="selectedStaffHeader">
+                                    Cán bộ đã chọn tham gia chiến dịch (<span id="selectedStaffCount">0</span>):
+                                </div>
+                                <div id="selectedStaffContainer" class="d-flex flex-wrap gap-2">
+                                    <!-- Thẻ cán bộ được chọn hiển thị ở đây: Tên và dấu X phía trên bên phải -->
+                                </div>
+                                <div id="noStaffSelectedMsg" class="text-muted small fst-italic mt-1">
+                                    Chưa có cán bộ y tế nào được chọn. Nhập tên vào ô tìm kiếm ở trên để phân công.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-danger" onclick="alert('Đã lưu chiến dịch mới thành công!');" data-bs-dismiss="modal">Xác nhận tạo chiến dịch</button>
+                <button type="button" class="btn btn-danger" id="btnSubmitCreateCampaign" onclick="submitCreateCampaign()">
+                    <span id="createCampaignSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Xác nhận tạo chiến dịch
+                </button>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    /* Style thẻ cán bộ được chọn (Theo hình số 2: Tên và dấu X ở góc trên bên phải) */
+    .selected-staff-card {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 8px 32px 8px 12px;
+        font-size: 0.92rem;
+        color: #1e293b;
+        font-weight: 500;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    .selected-staff-card:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+    }
+    .selected-staff-card .staff-name-text {
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .selected-staff-card .staff-role-sub {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-left: 6px;
+    }
+    /* Dấu X ở phía trên bên phải theo hình số 2 */
+    .selected-staff-card .btn-remove-staff {
+        position: absolute;
+        top: 3px;
+        right: 5px;
+        width: 22px;
+        height: 22px;
+        border: none;
+        background: transparent;
+        color: #475569;
+        font-size: 15px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+    }
+    .selected-staff-card .btn-remove-staff:hover {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    /* Style cho mục trong Dropdown */
+    .staff-dropdown-item {
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: background 0.15s ease;
+    }
+    .staff-dropdown-item:hover {
+        background-color: #f1f5f9;
+    }
+    .staff-dropdown-item.already-selected {
+        background-color: #f8fafc;
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+
 <script>
+    // Token xác thực người dùng được Controller Razor truyền vào
+    const serverToken = '@currentUserToken';
+
+    // Hàm lấy token từ nhiều nguồn (Server Cookie, LocalStorage, Document Cookie)
+    function getUserToken() {
+        return serverToken || localStorage.getItem('accessToken') || getCookie('AccessToken') || '';
+    }
+
+    // Danh sách cán bộ y tế (sẽ được gán lại khi có kết quả từ API GET https://localhost:7182/api/Staff/search?text=...)
+    let availableStaffList = [];
+
+    // Mảng lưu danh sách cán bộ đã được chọn
+    let selectedStaffs = [];
+    let staffSearchTimer = null;
+
+    // Tìm kiếm bảng chiến dịch
     function filterCampaignTable() {
         const input = document.getElementById('campaignSearchInput');
         const filter = input.value.toLowerCase();
@@ -168,4 +314,291 @@
             trs[i].style.display = rowText.includes(filter) ? '' : 'none';
         }
     }
+
+    // Hàm gọi API GET https://localhost:7182/api/Staff/search?text={text} khi người dùng gõ
+    function onStaffSearchInput(keyword) {
+        const menu = document.getElementById('staffDropdownMenu');
+        if (!menu) return;
+
+        const text = (keyword || '').trim();
+
+        // Nếu ô tìm kiếm rỗng thì ẩn dropdown
+        if (!text) {
+            menu.style.display = 'none';
+            menu.innerHTML = '';
+            availableStaffList = [];
+            return;
+        }
+
+        // Hiển thị trạng thái đang tìm kiếm
+        menu.style.display = 'block';
+        menu.innerHTML = `
+            <div class="p-3 text-center text-muted small">
+                <span class="spinner-border spinner-border-sm text-danger me-2" role="status"></span>
+                Đang gọi API tìm kiếm cán bộ...
+            </div>
+        `;
+
+        // Debounce 250ms để không gọi API liên tục mỗi ký tự
+        clearTimeout(staffSearchTimer);
+        staffSearchTimer = setTimeout(async () => {
+            try {
+                // Lấy AccessToken của user từ các nguồn (Razor Cookie, LocalStorage, Document Cookie)
+                const token = getUserToken();
+
+                // Gọi qua Controller Admin/Staff/Search (tự động gắn Bearer Token và bypass SSL localhost)
+                const response = await fetch(`/Admin/Staff/Search?text=${encodeURIComponent(text)}`, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Backend ServerMedical trả về: { message: "...", data: [ { staffId, fullName, email, ... } ] }
+                    let rawList = [];
+                    if (Array.isArray(result)) {
+                        rawList = result;
+                    } else if (result.data && Array.isArray(result.data)) {
+                        rawList = result.data;
+                    } else if (result.data && Array.isArray(result.data.items)) {
+                        rawList = result.data.items;
+                    }
+
+                    // Gán vào availableStaffList
+                    availableStaffList = rawList.map(item => ({
+                        staffId: item.staffId || item.id || item.userId || 0,
+                        name: item.fullName || (item.firstName && item.lastName ? `${item.firstName} ${item.lastName}` : (item.name || `Cán bộ #${item.staffId}`)),
+                        role: item.role || "Cán bộ Y tế",
+                        email: item.email || "",
+                        phone: item.phone || ""
+                    }));
+
+                    // Render danh sách cán bộ vừa lấy từ API lên Dropdown
+                    renderStaffDropdown();
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    const msg = err.message || `API trả về mã lỗi ${response.status}`;
+                    menu.innerHTML = `
+                        <div class="p-3 text-center text-danger small">
+                            ${escapeHtml(msg)}
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                menu.innerHTML = `
+                    <div class="p-3 text-center text-danger small">
+                        Không thể kết nối đến máy chủ API: ${escapeHtml(err.message)}
+                    </div>
+                `;
+            }
+        }, 250);
+    }
+
+    // Render danh sách cán bộ trong availableStaffList ra Dropdown
+    function renderStaffDropdown() {
+        const menu = document.getElementById('staffDropdownMenu');
+        if (!menu) return;
+
+        if (availableStaffList.length === 0) {
+            menu.innerHTML = `
+                <div class="p-3 text-center text-muted small">
+                    Không tìm thấy cán bộ nào trong hệ thống.
+                </div>
+            `;
+            menu.style.display = 'block';
+            return;
+        }
+
+        menu.innerHTML = availableStaffList.map(s => {
+            const isSelected = selectedStaffs.some(sel => sel.staffId === s.staffId);
+            const avatarChar = s.name ? s.name.trim().split(' ').pop().substring(0, 1).toUpperCase() : 'BS';
+            return `
+                <div class="staff-dropdown-item ${isSelected ? 'already-selected' : ''}" 
+                     onclick="${isSelected ? '' : `selectStaff(${s.staffId})`}">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.75rem; background: #dbeafe; color: #2563eb;">
+                            ${avatarChar}
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-dark lh-sm">${escapeHtml(s.name)}</div>
+                            <div class="text-muted small" style="font-size: 0.75rem;">${escapeHtml(s.email || s.role)} • Mã: #${s.staffId}</div>
+                        </div>
+                    </div>
+                    ${isSelected 
+                        ? '<span class="badge bg-light text-secondary border">Đã chọn</span>' 
+                        : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle">+ Chọn</span>'}
+                </div>
+            `;
+        }).join('');
+
+        menu.style.display = 'block';
+    }
+
+    // Hàm đọc cookie
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+        return null;
+    }
+
+    // Chọn một cán bộ từ dropdown
+    function selectStaff(staffId) {
+        const staff = availableStaffList.find(s => s.staffId === staffId);
+        if (!staff) return;
+
+        // Tránh trùng lặp
+        if (!selectedStaffs.some(s => s.staffId === staffId)) {
+            selectedStaffs.push(staff);
+            renderSelectedStaffs();
+        }
+
+        // Xóa ô tìm kiếm và đóng dropdown
+        const input = document.getElementById('staffSearchInput');
+        if (input) input.value = '';
+        const menu = document.getElementById('staffDropdownMenu');
+        if (menu) menu.style.display = 'none';
+    }
+
+    // Xóa cán bộ khỏi danh sách đã chọn (khi click dấu X)
+    function removeSelectedStaff(staffId) {
+        selectedStaffs = selectedStaffs.filter(s => s.staffId !== staffId);
+        renderSelectedStaffs();
+    }
+
+    // Render danh sách cán bộ đã chọn ra giao diện (Theo đúng hình số 2)
+    function renderSelectedStaffs() {
+        const container = document.getElementById('selectedStaffContainer');
+        const emptyMsg = document.getElementById('noStaffSelectedMsg');
+        const header = document.getElementById('selectedStaffHeader');
+        const count = document.getElementById('selectedStaffCount');
+
+        if (!container) return;
+
+        if (selectedStaffs.length === 0) {
+            container.innerHTML = '';
+            if (emptyMsg) emptyMsg.classList.remove('d-none');
+            if (header) header.classList.add('d-none');
+            return;
+        }
+
+        if (emptyMsg) emptyMsg.classList.add('d-none');
+        if (header) header.classList.remove('d-none');
+        if (count) count.textContent = selectedStaffs.length;
+
+        // Render từng thẻ cán bộ có tên và dấu X phía trên bên phải theo hình 2
+        container.innerHTML = selectedStaffs.map(s => `
+            <div class="selected-staff-card">
+                <span class="staff-name-text">${escapeHtml(s.name)}</span>
+                <span class="staff-role-sub">#${s.staffId}</span>
+                <button type="button" class="btn-remove-staff" 
+                        onclick="removeSelectedStaff(${s.staffId})" 
+                        title="Xóa ${escapeHtml(s.name)} khỏi chiến dịch">
+                    ✕
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Đóng dropdown khi click ra ngoài
+    document.addEventListener('click', function (e) {
+        const input = document.getElementById('staffSearchInput');
+        const menu = document.getElementById('staffDropdownMenu');
+        if (!input || !menu) return;
+        if (!input.contains(e.target) && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    // Hàm escape HTML chống XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Gửi tạo chiến dịch mới lên backend API
+    async function submitCreateCampaign() {
+        const alertEl = document.getElementById('createCampaignAlert');
+        const spinner = document.getElementById('createCampaignSpinner');
+        const submitBtn = document.getElementById('btnSubmitCreateCampaign');
+
+        const title = document.getElementById('inputTitle').value.trim();
+        const location = document.getElementById('inputLocation').value.trim();
+        const eventDateRaw = document.getElementById('inputEventDate').value;
+
+        // Validate các trường bắt buộc
+        if (!title || !location || !eventDateRaw) {
+            alertEl.className = 'alert alert-warning';
+            alertEl.textContent = 'Vui lòng điền đầy đủ: Tên chiến dịch, Địa điểm, Ngày & giờ tổ chức.';
+            alertEl.classList.remove('d-none');
+            return;
+        }
+
+        // Chuyển datetime-local → ISO 8601 (ví dụ: 2026-11-14T08:52:09.295Z)
+        const eventDate = new Date(eventDateRaw).toISOString();
+
+        // shiftTime lấy dữ liệu eventDate truyền vào luôn theo đúng yêu cầu
+        const staffAssignments = selectedStaffs.map(staff => ({
+            staffId: staff.staffId,
+            shiftTime: eventDate
+        }));
+
+        const payload = {
+            title: title,
+            location: location,
+            eventDate: eventDate,
+            staffAssignments: staffAssignments
+        };
+
+        // UI loading
+        spinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+        alertEl.classList.add('d-none');
+
+        try {
+            const token = getUserToken();
+            const response = await fetch('/Admin/Campaign/Create', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alertEl.className = 'alert alert-success';
+                alertEl.textContent = result.message || 'Tạo chiến dịch mới thành công!';
+                alertEl.classList.remove('d-none');
+                
+                document.getElementById('formCreateCampaign').reset();
+                selectedStaffs = [];
+                renderSelectedStaffs();
+
+                // Tải lại trang sau 1.5 giây để cập nhật danh sách
+                setTimeout(() => { window.location.reload(); }, 1500);
+            } else {
+                alertEl.className = 'alert alert-danger';
+                alertEl.textContent = result.message;
+                alertEl.classList.remove('d-none');
+            }
+        } catch (err) {
+            alertEl.className = 'alert alert-danger';
+            alertEl.textContent = 'Lỗi kết nối: ' + err.message;
+            alertEl.classList.remove('d-none');
+        } finally {
+            spinner.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Reset dữ liệu khi mở lại modal
+    document.getElementById('createCampaignModal').addEventListener('show.bs.modal', function () {
+        document.getElementById('createCampaignAlert').classList.add('d-none');
+        document.getElementById('formCreateCampaign').reset();
+        selectedStaffs = [];
+        renderSelectedStaffs();
+    });
 </script>

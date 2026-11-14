@@ -70,8 +70,9 @@ namespace WebsiteMedical.Controllers
                     {
                         Response.Cookies.Append("AccessToken", apiResult.Data.AccessToken, new CookieOptions
                         {
-                            HttpOnly = true,
+                            HttpOnly = false,
                             Secure = true,
+                            SameSite = SameSiteMode.Lax,
                             Expires = DateTimeOffset.UtcNow.AddHours(2)
                         });
 

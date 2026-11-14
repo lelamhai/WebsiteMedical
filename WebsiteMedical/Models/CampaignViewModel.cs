@@ -90,5 +90,30 @@ namespace WebsiteMedical.Models
         public string? ErrorMessage { get; set; }
         public bool IsUsingFallback { get; set; } = false;
     }
+
+    // DTO gửi lên API POST /api/Campaign/create
+    public class CreateCampaignRequest
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        public string Title { get; set; } = string.Empty;
+
+        [System.Text.Json.Serialization.JsonPropertyName("location")]
+        public string Location { get; set; } = string.Empty;
+
+        [System.Text.Json.Serialization.JsonPropertyName("eventDate")]
+        public DateTime EventDate { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("staffAssignments")]
+        public List<StaffAssignmentRequest> StaffAssignments { get; set; } = new();
+    }
+
+    public class StaffAssignmentRequest
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("staffId")]
+        public int StaffId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("shiftTime")]
+        public string ShiftTime { get; set; } = string.Empty;
+    }
 }
 
