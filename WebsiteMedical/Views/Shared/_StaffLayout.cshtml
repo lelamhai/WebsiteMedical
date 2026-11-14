@@ -1,3 +1,15 @@
+@{
+    var rawUserName = Context.Request.Cookies["UserName"];
+    var currentUserName = !string.IsNullOrWhiteSpace(rawUserName) 
+        ? System.Net.WebUtility.UrlDecode(rawUserName) 
+        : "Bác sĩ Trực ban";
+
+    var avatarInitial = !string.IsNullOrWhiteSpace(currentUserName) 
+        ? (currentUserName.Length >= 2 && currentUserName.Contains(" ") 
+            ? string.Concat(currentUserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).TakeLast(2).Select(s => s[0])).ToUpper() 
+            : currentUserName.Trim().Substring(0, 1).ToUpper()) 
+        : "BS";
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -22,8 +34,7 @@
                         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
                     </svg>
                     <div>
-                        <div class="brand-title">WebsiteMedical</div>
-                        <span class="brand-badge-role badge-staff-role">Cán Bộ Y Tế (Staff)</span>
+                        <div class="brand-title">Cán Bộ Y Tế</div>
                     </div>
                 </a>
             </div>
@@ -85,7 +96,7 @@
         </div>
 
         <div class="sidebar-footer">
-            <a href="/" class="btn-logout">
+            <a href="/Auth/Logout" class="btn-logout" title="Đăng xuất khỏi hệ thống">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
@@ -113,10 +124,10 @@
 
             <div class="topbar-right">
                 <div class="user-profile-widget">
-                    <div class="user-avatar" style="background:#dbeafe; color:#2563eb; border-color:#bfdbfe;">BS</div>
+                    <div class="user-avatar" style="background:#dbeafe; color:#2563eb; border-color:#bfdbfe;">@avatarInitial</div>
                     <div class="user-info-text d-none d-sm-block">
-                        <div class="user-name">Bác sĩ Trực ban</div>
-                        <div class="user-role-label">Cán Bộ Y Tế</div>
+                        <div class="user-role-label">Wellcome to!</div>
+                        <div class="user-name">@currentUserName</div>
                     </div>
                 </div>
             </div>

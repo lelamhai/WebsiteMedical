@@ -22,7 +22,8 @@ namespace WebsiteMedical.Models
         public LoginApiResponse? ResponseData { get; set; }
         public string? FormattedJson { get; set; }
 
-        // Thông tin giải mã token JWT
+        // Thông tin giải mã token JWT hoặc từ API
+        public string? UserFullName { get; set; }
         public string? UserRole { get; set; }
         public string? UserEmail { get; set; }
         public string? UserExpires { get; set; }
@@ -47,6 +48,18 @@ namespace WebsiteMedical.Models
 
         [JsonPropertyName("refreshExpiresAt")]
         public string RefreshExpiresAt { get; set; } = string.Empty;
+
+        [JsonPropertyName("fullName")]
+        public string? FullName { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("userName")]
+        public string? UserName { get; set; }
+
+        [JsonPropertyName("email")]
+        public string? Email { get; set; }
     }
 }
 

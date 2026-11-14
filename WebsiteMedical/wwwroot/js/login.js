@@ -100,16 +100,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const preElement = document.getElementById('jsonViewer');
     if (!preElement) return;
 
-    // 1. Lưu token vào localStorage nếu đăng nhập thành công
+    // 1. Lưu token & thông tin người dùng vào localStorage nếu đăng nhập thành công
     const accessToken = preElement.getAttribute('data-access-token');
     const refreshToken = preElement.getAttribute('data-refresh-token');
     const refreshExpiresAt = preElement.getAttribute('data-expires');
+    const userName = preElement.getAttribute('data-user-name');
+    const userRole = preElement.getAttribute('data-user-role');
 
     if (accessToken) {
         try {
             localStorage.setItem('accessToken', accessToken);
             if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
             if (refreshExpiresAt) localStorage.setItem('refreshExpiresAt', refreshExpiresAt);
+            if (userName) localStorage.setItem('user_name', userName);
+            if (userRole) localStorage.setItem('user_role', userRole);
         } catch (e) {
             console.warn("Không thể lưu localStorage:", e);
         }

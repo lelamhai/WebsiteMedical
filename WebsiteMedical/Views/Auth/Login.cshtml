@@ -224,7 +224,9 @@
                             <pre id="jsonViewer" class="json-content" 
                                  data-access-token="@Model?.ResponseData?.Data?.AccessToken" 
                                  data-refresh-token="@Model?.ResponseData?.Data?.RefreshToken" 
-                                 data-expires="@Model?.ResponseData?.Data?.RefreshExpiresAt">@Html.Raw(Model?.FormattedJson)</pre>
+                                 data-expires="@Model?.ResponseData?.Data?.RefreshExpiresAt"
+                                 data-user-name="@(Model?.UserFullName ?? Model?.UserEmail)"
+                                 data-user-role="@Model?.UserRole">@Html.Raw(Model?.FormattedJson)</pre>
                             
                             <div class="json-actions">
                                 <button type="button" class="btn-json-action" onclick="copyJsonToClipboard()" title="Sao chép toàn bộ JSON">

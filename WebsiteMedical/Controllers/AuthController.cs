@@ -77,6 +77,25 @@ namespace WebsiteMedical.Controllers
 
                         ExtractJwtClaims(apiResult.Data.AccessToken, model);
 
+                        // Lưu Cookie Họ và Tên (URL Encode để an toàn với ký tự tiếng Việt có dấu)
+                        var displayName = !string.IsNullOrWhiteSpace(model.UserFullName) 
+                            ? model.UserFullName 
+                            : (!string.IsNullOrWhiteSpace(model.UserEmail) ? model.UserEmail.Split('@')[0] : "Người dùng");
+
+                        Response.Cookies.Append("UserName", System.Net.WebUtility.UrlEncode(displayName), new CookieOptions
+                        {
+                            HttpOnly = false,
+                            Secure = true,
+                            Expires = DateTimeOffset.UtcNow.AddHours(2)
+                        });
+
+                        Response.Cookies.Append("UserRole", model.UserRole ?? "Admin", new CookieOptions
+                        {
+                            HttpOnly = false,
+                            Secure = true,
+                            Expires = DateTimeOffset.UtcNow.AddHours(2)
+                        });
+
                         // Điều hướng người dùng theo 3 vai trò: Admin, Staff, Volunteer
                         if (string.Equals(model.UserRole, "Admin", StringComparison.OrdinalIgnoreCase))
                         {
@@ -115,11 +134,36 @@ namespace WebsiteMedical.Controllers
             return View();
         }
 
+        [HttpGet]
+        [Route("logout")]
+        [Route("Auth/Logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("AccessToken");
+            Response.Cookies.Delete("UserName");
+            Response.Cookies.Delete("UserRole");
+            return RedirectToAction("Login", "Auth");
+        }
+
         /// <summary>
-        /// Giải mã JWT Token để lấy vai trò và thông tin người dùng
+        /// Giải mã JWT Token để lấy vai trò và thông tin họ tên người dùng
         /// </summary>
         private void ExtractJwtClaims(string token, LoginViewModel model)
         {
+            // 1. Kiểm tra nếu backend API trả về trực tiếp trong response data
+            if (!string.IsNullOrWhiteSpace(model.ResponseData?.Data?.FullName))
+            {
+                model.UserFullName = model.ResponseData.Data.FullName;
+            }
+            else if (!string.IsNullOrWhiteSpace(model.ResponseData?.Data?.Name))
+            {
+                model.UserFullName = model.ResponseData.Data.Name;
+            }
+            else if (!string.IsNullOrWhiteSpace(model.ResponseData?.Data?.UserName))
+            {
+                model.UserFullName = model.ResponseData.Data.UserName;
+            }
+
             try
             {
                 var parts = token.Split('.');
@@ -137,10 +181,28 @@ namespace WebsiteMedical.Controllers
 
                     foreach (var prop in doc.RootElement.EnumerateObject())
                     {
-                        if (prop.Name.Equals("role", StringComparison.OrdinalIgnoreCase) || prop.Name.EndsWith("/role"))
+                        var propName = prop.Name;
+                        if (propName.Equals("role", StringComparison.OrdinalIgnoreCase) || propName.EndsWith("/role"))
+                        {
                             model.UserRole = prop.Value.GetString();
-                        else if (prop.Name.Equals("email", StringComparison.OrdinalIgnoreCase) || prop.Name.EndsWith("/emailaddress"))
+                        }
+                        else if (propName.Equals("email", StringComparison.OrdinalIgnoreCase) || propName.EndsWith("/emailaddress"))
+                        {
                             model.UserEmail = prop.Value.GetString();
+                        }
+                        else if (string.IsNullOrEmpty(model.UserFullName))
+                        {
+                            if (propName.Equals("fullname", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Equals("fullName", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Equals("name", StringComparison.OrdinalIgnoreCase) ||
+                                propName.EndsWith("/name") ||
+                                propName.Equals("unique_name", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Equals("username", StringComparison.OrdinalIgnoreCase) ||
+                                propName.Equals("given_name", StringComparison.OrdinalIgnoreCase))
+                            {
+                                model.UserFullName = prop.Value.GetString();
+                            }
+                        }
                     }
                 }
             }
@@ -148,6 +210,22 @@ namespace WebsiteMedical.Controllers
 
             if (string.IsNullOrEmpty(model.UserRole)) model.UserRole = "Admin";
             if (string.IsNullOrEmpty(model.UserEmail)) model.UserEmail = model.Email;
+
+            // Nếu không có tên trong JWT, tự động suy ra từ email hoặc mặc định theo role
+            if (string.IsNullOrWhiteSpace(model.UserFullName))
+            {
+                if (!string.IsNullOrWhiteSpace(model.UserEmail) && model.UserEmail.Contains('@'))
+                {
+                    var emailUser = model.UserEmail.Split('@')[0];
+                    model.UserFullName = emailUser;
+                }
+                else
+                {
+                    model.UserFullName = model.UserRole.Equals("Staff", StringComparison.OrdinalIgnoreCase) 
+                        ? "Bác sĩ Trực ban" 
+                        : "Quản Trị Viên";
+                }
+            }
 
             if (model.ResponseData?.Data?.RefreshExpiresAt != null &&
                 DateTime.TryParse(model.ResponseData.Data.RefreshExpiresAt, out var exp))
