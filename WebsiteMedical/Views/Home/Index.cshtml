@@ -1,8 +1,55 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang Chủ - Hệ Thống Quản Lý Hiến Máu Nhân Đạo";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="py-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+                🩸 Cổng Thông Tin Hiến Máu Trực Tuyến
+            </span>
+            <h1 class="display-5 fw-bold text-dark lh-sm mb-3">
+                Một Giọt Máu Cho Đi - <span class="text-danger">Một Cuộc Đời Ở Lại</span>
+            </h1>
+            <p class="lead text-secondary mb-4">
+                Hệ thống kết nối Ban tổ chức, Bác sĩ/Cán bộ y tế và Tình nguyện viên. Hỗ trợ đặt lịch hẹn, sàng lọc tiền sử bệnh, check-in QR Code và cập nhật thống kê kho máu theo thời gian thực.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Auth" asp-action="Login" class="btn btn-danger btn-lg px-4 fw-semibold shadow-sm">
+                    Đăng nhập hệ thống &rarr;
+                </a>
+                <a href="#quy-trinh" class="btn btn-outline-secondary btn-lg px-4">
+                    Tìm hiểu quy trình
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-light">
+                <h5 class="fw-bold mb-3 text-dark">Dành cho các đối tượng</h5>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="bg-white p-2 rounded-3 shadow-sm border text-danger fw-bold">01</div>
+                        <div>
+                            <strong class="text-dark">Ban tổ chức (Admin)</strong>
+                            <p class="text-muted small mb-0">Tạo chiến dịch, thiết lập chỉ tiêu số túi máu & nhóm máu ưu tiên.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="bg-white p-2 rounded-3 shadow-sm border text-danger fw-bold">02</div>
+                        <div>
+                            <strong class="text-dark">Tình nguyện viên hiến máu</strong>
+                            <p class="text-muted small mb-0">Khai báo hồ sơ sức khỏe, đặt lịch hẹn theo khung giờ, xem lịch sử.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="bg-white p-2 rounded-3 shadow-sm border text-danger fw-bold">03</div>
+                        <div>
+                            <strong class="text-dark">Cán bộ y tế</strong>
+                            <p class="text-muted small mb-0">Quét mã QR check-in, ghi nhận kết quả khám và lý do không đạt.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

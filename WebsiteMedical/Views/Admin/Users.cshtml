@@ -1,0 +1,218 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Người Dùng & Phân Quyền (User Management)";
+}
+
+<!-- THẺ THỐNG KÊ TÀI KHOẢN -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            </div>
+            <div>
+                <div class="stat-value">1,480</div>
+                <div class="stat-title">Tổng người dùng</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg>
+            </div>
+            <div>
+                <div class="stat-value text-danger">5</div>
+                <div class="stat-title">Quản trị viên (Admin)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon amber">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            </div>
+            <div>
+                <div class="stat-value text-warning">45</div>
+                <div class="stat-title">Cán bộ y tế (Staff)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            </div>
+            <div>
+                <div class="stat-value text-success">1,430</div>
+                <div class="stat-title">Tình nguyện viên (Volunteer)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NỘI DUNG CHÍNH -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="d-flex align-items-center gap-3">
+            <h2 class="card-heading">Danh sách Tài Khoản</h2>
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary active">Tất cả</button>
+                <button type="button" class="btn btn-outline-secondary">Admin</button>
+                <button type="button" class="btn btn-outline-secondary">Staff</button>
+                <button type="button" class="btn btn-outline-secondary">Volunteer</button>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: 220px;">
+                <input type="text" class="form-control" placeholder="Tìm tên, email...">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span>Thêm tài khoản</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Họ và Tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Vai trò (Role)</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.8rem;">NT</div>
+                            <div>
+                                <strong class="text-dark d-block">Nguyễn Thanh Tùng</strong>
+                                <span class="text-muted small">ID: AD-001</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>streetyle290753bv@gmail.com</td>
+                    <td>0969128313</td>
+                    <td><span class="badge bg-danger">Admin</span></td>
+                    <td><span class="badge-status badge-active">Hoạt động</span></td>
+                    <td>10/01/2026</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Đổi quyền">&#9881;</button>
+                        <button class="btn btn-outline-danger btn-sm" title="Khóa tài khoản">&#128274;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; background:#dbeafe; color:#2563eb;">LH</div>
+                            <div>
+                                <strong class="text-dark d-block">BS. Lê Hoàng Long</strong>
+                                <span class="text-muted small">Khoa Huyết học</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>lehoanglong@medical.vn</td>
+                    <td>0912345678</td>
+                    <td><span class="badge bg-primary">Staff</span></td>
+                    <td><span class="badge-status badge-active">Hoạt động</span></td>
+                    <td>15/02/2026</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Đổi quyền">&#9881;</button>
+                        <button class="btn btn-outline-danger btn-sm" title="Khóa tài khoản">&#128274;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; background:#dbeafe; color:#2563eb;">TM</div>
+                            <div>
+                                <strong class="text-dark d-block">ĐD. Trần Thị Mai</strong>
+                                <span class="text-muted small">Phòng Lấy Máu</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>tranmai@medical.vn</td>
+                    <td>0988776655</td>
+                    <td><span class="badge bg-primary">Staff</span></td>
+                    <td><span class="badge-status badge-active">Hoạt động</span></td>
+                    <td>20/03/2026</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Đổi quyền">&#9881;</button>
+                        <button class="btn btn-outline-danger btn-sm" title="Khóa tài khoản">&#128274;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; background:#dcfce7; color:#16a34a;">PV</div>
+                            <div>
+                                <strong class="text-dark d-block">Phạm Văn An</strong>
+                                <span class="text-muted small">Nhóm máu O+ (Đã hiến 4 lần)</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>anpham@gmail.com</td>
+                    <td>0903112233</td>
+                    <td><span class="badge bg-success">Volunteer</span></td>
+                    <td><span class="badge-status badge-active">Hoạt động</span></td>
+                    <td>01/05/2026</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Nâng quyền thành Staff">&#9881;</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL THÊM USER MỚI -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addUserModalLabel">Thêm Tài Khoản Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAddUser">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" placeholder="Nhập họ và tên đầy đủ" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Địa chỉ Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" placeholder="name@example.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Số điện thoại</label>
+                        <input type="tel" class="form-control" placeholder="09xxxxxxxx">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Phân quyền vai trò (Role) <span class="text-danger">*</span></label>
+                        <select class="form-select" required>
+                            <option value="Staff" selected>Cán bộ y tế (Staff) - Có quyền khám & check-in</option>
+                            <option value="Admin">Ban tổ chức (Admin) - Toàn quyền quản trị</option>
+                            <option value="Volunteer">Tình nguyện viên (Volunteer) - Chỉ đăng ký ngoài app</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mật khẩu tạm thời <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" value="Medical@123" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" onclick="alert('Đã thêm tài khoản thành công (Mockup)!');" data-bs-dismiss="modal">Tạo tài khoản</button>
+            </div>
+        </div>
+    </div>
+</div>
+

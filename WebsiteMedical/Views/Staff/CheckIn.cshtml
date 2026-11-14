@@ -1,0 +1,183 @@
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Tiếp Nhận & Check-in QR Tình Nguyện Viên";
+}
+
+<div class="row g-4">
+    <!-- CỘT TRÁI: Ô QUÉT MÃ QR HOẶC NHẬP ID/CCCD -->
+    <div class="col-lg-5">
+        <div class="content-card mb-4">
+            <div class="content-card-header">
+                <h2 class="card-heading">1. Check-in Tình Nguyện Viên</h2>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Điểm đón tiếp</span>
+            </div>
+            <div class="p-4">
+                <!-- Mô phỏng camera quét QR -->
+                <div class="p-4 border rounded-3 text-center bg-light mb-3" style="border: 2px dashed #cbd5e1 !important;">
+                    <div style="font-size: 2.5rem;">📷</div>
+                    <strong class="d-block mt-2">Quét mã QR trên ứng dụng</strong>
+                    <p class="text-muted small mb-3">Hướng camera về phía mã QR trên điện thoại của tình nguyện viên</p>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="alert('Đã bật camera quét QR (Mockup)');">
+                        Mở Camera Quét QR
+                    </button>
+                </div>
+
+                <div class="text-center text-muted small my-2">&horbar; HOẶC NHẬP THỦ CÔNG &horbar;</div>
+
+                <!-- Nhập ID hoặc CCCD -->
+                <form id="checkInForm" onsubmit="event.preventDefault(); alert('Tìm thấy hồ sơ tình nguyện viên!');">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Số CCCD hoặc Mã TNV <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Ví dụ: 001201004567 hoặc TNV-8821" value="001201004567">
+                            <button class="btn btn-danger" type="submit">Tra cứu</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- HỒ SƠ TÌNH NGUYỆN VIÊN ĐƯỢC TÌM THẤY -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3 class="card-heading fs-6">2. Thông Tin Hồ Sơ & Đặt Lịch</h3>
+                <span class="badge bg-success">&check; Đã duyệt online</span>
+            </div>
+            <div class="p-3">
+                <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                    <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1.1rem;">NA</div>
+                    <div>
+                        <h4 class="fs-6 fw-bold mb-0">Nguyễn Văn An</h4>
+                        <span class="text-muted small">CCCD: 001201004567 &bull; Nam &bull; 1998</span>
+                    </div>
+                </div>
+
+                <div class="row g-2 small mb-3">
+                    <div class="col-6">
+                        <span class="text-muted d-block">Khung giờ hẹn:</span>
+                        <strong>08:30 - 09:30</strong>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-muted d-block">Nhóm máu tự khai:</span>
+                        <strong class="text-danger">Nhóm O</strong>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-muted d-block">Số lần đã hiến:</span>
+                        <strong>3 lần</strong>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-muted d-block">Khám sàng lọc:</span>
+                        <span class="badge bg-success">Đạt điều kiện</span>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-success w-100 fw-semibold" onclick="alert('Xác nhận Check-in thành công cho Nguyễn Văn An!');">
+                    &check; Xác Nhận Check-In Vào Bàn Lấy Máu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CỘT PHẢI: GHI NHẬN KẾT QUẢ LẤY MÁU & DANH SÁCH TÚI MÁU THU THẬP -->
+    <div class="col-lg-7">
+        <div class="content-card mb-4">
+            <div class="content-card-header">
+                <h2 class="card-heading">3. Ghi Nhận Kết Quả Thu Nhận Máu</h2>
+                <span class="badge bg-danger">Bàn lấy máu</span>
+            </div>
+            <div class="p-4">
+                <form id="formBloodBag">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mã túi máu (Barcode/ID) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Ví dụ: BAG-20261114-008" value="BAG-20261114-008" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Dung tích máu thực lấy <span class="text-danger">*</span></label>
+                            <select class="form-select" required>
+                                <option value="250">250 ml</option>
+                                <option value="350" selected>350 ml</option>
+                                <option value="450">450 ml</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nhóm máu xác nhận tại chỗ <span class="text-danger">*</span></label>
+                            <select class="form-select" required>
+                                <option value="O+" selected>O+ (Rh+)</option>
+                                <option value="O-">O- (Rh- Hiếm)</option>
+                                <option value="A+">A+ (Rh+)</option>
+                                <option value="A-">A- (Rh-)</option>
+                                <option value="B+">B+ (Rh+)</option>
+                                <option value="B-">B- (Rh-)</option>
+                                <option value="AB+">AB+ (Rh+)</option>
+                                <option value="AB-">AB- (Rh-)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Cán bộ y tế lấy máu</label>
+                            <input type="text" class="form-control" value="ĐD. Trần Thị Mai" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Tình trạng sau lấy máu</label>
+                            <input type="text" class="form-control" placeholder="Bình thường, tỉnh táo, nghỉ ngơi tại chỗ 15 phút" value="Bình thường, tỉnh táo, đã nhận quà và suất ăn nhẹ">
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-danger w-100 fw-semibold py-2" onclick="alert('Đã cập nhật túi máu vào kho thành công (Trạng thái: Hoàn thành)!');">
+                                &check; Hoàn Tất Ca Lấy Máu & Lưu Vào Kho
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- DANH SÁCH TÚI MÁU ĐÃ THU THẬP TRONG CA HÔM NAY -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h3 class="card-heading fs-6">Danh Sách Túi Máu Đã Thu Thập Trong Ca</h3>
+                <span class="badge bg-secondary">Hôm nay: 42 túi</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-custom table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mã túi máu</th>
+                            <th>Người hiến</th>
+                            <th>Nhóm máu</th>
+                            <th>Dung tích</th>
+                            <th>Thời gian lấy</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>BAG-20261114-007</strong></td>
+                            <td>Lê Minh Cường</td>
+                            <td><span class="badge bg-danger">O+</span></td>
+                            <td>350 ml</td>
+                            <td>09:15</td>
+                            <td><span class="badge bg-success">&check; Đã lưu kho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>BAG-20261114-006</strong></td>
+                            <td>Phạm Văn An</td>
+                            <td><span class="badge bg-danger">B+</span></td>
+                            <td>450 ml</td>
+                            <td>09:05</td>
+                            <td><span class="badge bg-success">&check; Đã lưu kho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>BAG-20261114-005</strong></td>
+                            <td>Vũ Thị Hạnh</td>
+                            <td><span class="badge bg-danger">A+</span></td>
+                            <td>250 ml</td>
+                            <td>08:50</td>
+                            <td><span class="badge bg-success">&check; Đã lưu kho</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,158 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Không Có Quyền Truy Cập - WebsiteMedical";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .denied-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            max-width: 540px;
+            width: 100%;
+            padding: 40px 36px;
+            text-align: center;
+        }
+
+        .denied-icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background-color: #fee2e2;
+            color: #dc2626;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .denied-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .badge-volunteer {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 18px;
+        }
+
+        .denied-desc {
+            color: #475569;
+            font-size: 0.93rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: left;
+            font-size: 0.86rem;
+            color: #334155;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .btn-action-primary {
+            background-color: #c92a2a;
+            color: #ffffff;
+            border: 1px solid #c92a2a;
+            border-radius: 8px;
+            padding: 11px 24px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-primary:hover {
+            background-color: #b02525;
+            color: #ffffff;
+        }
+
+        .hotline-text {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="denied-card">
+        <div class="denied-icon-wrap">
+            <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+        </div>
+
+        <h1 class="denied-title">Bạn Không Có Quyền Vào Hệ Thống</h1>
+        
+        <div>
+            <span class="badge-volunteer">&bull; Vai trò: Tình Nguyện Viên (Volunteer)</span>
+        </div>
+
+        <p class="denied-desc">
+            Cổng thông tin quản trị này dành riêng cho <strong>Ban Tổ Chức (Admin)</strong> điều phối chiến dịch và <strong>Cán Bộ Y Tế (Staff)</strong> thực hiện khám sàng lọc và tiếp nhận máu.
+        </p>
+
+        <div class="info-box">
+            <strong class="d-block mb-1 text-dark">&#128161; Dành cho Tình nguyện viên:</strong>
+            Nếu bạn muốn đăng ký tham gia các chiến dịch hiến máu nhân đạo, khai báo y tế hoặc tra cứu lịch sử hiến máu cá nhân, vui lòng sử dụng ứng dụng di động dành cho người hiến máu hoặc liên hệ ban tổ chức để được cấp quyền cán bộ y tế.
+        </div>
+
+        <a href="/" class="btn-action-primary">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            <span>Đăng xuất & Đăng nhập tài khoản khác</span>
+        </a>
+
+        <div class="hotline-text">
+            Cần hỗ trợ về quyền tài khoản? Tổng đài: <strong>0969128313</strong>
+        </div>
+    </div>
+
+</body>
+</html>
+

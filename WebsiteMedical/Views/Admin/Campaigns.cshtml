@@ -1,0 +1,217 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Campaigns (Chiến dịch hiến máu)";
+}
+
+<!-- THẺ THỐNG KÊ NHANH -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            </div>
+            <div>
+                <div class="stat-value">12</div>
+                <div class="stat-title">Tổng chiến dịch</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div>
+                <div class="stat-value text-success">3</div>
+                <div class="stat-title">Đang diễn ra</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+            </div>
+            <div>
+                <div class="stat-value text-primary">1,420</div>
+                <div class="stat-title">Tình nguyện viên đăng ký</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon amber">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <div>
+                <div class="stat-value text-warning">3,850</div>
+                <div class="stat-title">Túi máu đã thu thập</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NỘI DUNG CHÍNH -->
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="d-flex align-items-center gap-3">
+            <h2 class="card-heading">Danh sách Chiến dịch</h2>
+            <span class="badge bg-light text-dark border">12 chiến dịch</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width: 240px;">
+                <input type="text" class="form-control" placeholder="Tìm tên chiến dịch...">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#createCampaignModal">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span>Tạo chiến dịch mới</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-custom table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Tên chiến dịch</th>
+                    <th>Thời gian tổ chức</th>
+                    <th>Địa điểm</th>
+                    <th>Chỉ tiêu túi máu</th>
+                    <th>Nhóm máu ưu tiên</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <strong class="text-dark d-block">Hành Trình Đỏ 2026 - Giọt Hồng Tri Ân</strong>
+                        <span class="text-muted small">Mã: CD-2026-001</span>
+                    </td>
+                    <td>01/12/2026 - 05/12/2026</td>
+                    <td>Nhà văn hóa Thanh niên, Q.1, TP.HCM</td>
+                    <td>
+                        <div><strong>420</strong> / 500 túi</div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-danger" style="width: 84%;"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">O-</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">A-</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">B+</span>
+                    </td>
+                    <td><span class="badge-status badge-active">Đang diễn ra</span></td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Chỉnh sửa">&#9998;</button>
+                        <button class="btn btn-outline-danger btn-sm" title="Chi tiết">&#128065;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong class="text-dark d-block">Giọt Máu Nghĩa Tình - Mùa Đông Ấm</strong>
+                        <span class="text-muted small">Mã: CD-2026-002</span>
+                    </td>
+                    <td>20/11/2026 - 22/11/2026</td>
+                    <td>Học viện Công nghệ Bưu chính Viễn thông (PTIT)</td>
+                    <td>
+                        <div><strong>180</strong> / 300 túi</div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 60%;"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">O+</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">B+</span>
+                    </td>
+                    <td><span class="badge-status badge-upcoming">Sắp diễn ra</span></td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Chỉnh sửa">&#9998;</button>
+                        <button class="btn btn-outline-danger btn-sm" title="Chi tiết">&#128065;</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong class="text-dark d-block">Blouse Trắng - Trái Tim Hồng 2026</strong>
+                        <span class="text-muted small">Mã: CD-2026-003</span>
+                    </td>
+                    <td>10/10/2026 - 12/10/2026</td>
+                    <td>Bệnh viện Bạch Mai, Hà Nội</td>
+                    <td>
+                        <div><strong>450</strong> / 400 túi</div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 100%;"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary-subtle text-dark border">Tất cả</span>
+                    </td>
+                    <td><span class="badge-status badge-ended">Đã hoàn thành</span></td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-secondary btn-sm" title="Xem báo cáo">&#128065;</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL TẠO CHIẾN DỊCH MỚI (ĐÚNG THEO NGHIỆP VỤ MỤC I) -->
+<div class="modal fade" id="createCampaignModal" tabindex="-1" aria-labelledby="createCampaignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="createCampaignModalLabel">Tạo Chiến Dịch Hiến Máu Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCreateCampaign">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Tên chương trình / Chiến dịch <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Ví dụ: Giọt Máu Hồng - Hè Tình Nguyện 2026" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Ngày bắt đầu <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Ngày kết thúc <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Địa điểm tổ chức <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Địa chỉ cụ thể nơi tiếp nhận hiến máu" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Chỉ tiêu túi máu cần thu thập <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" placeholder="Ví dụ: 300 túi" min="1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Giới hạn số lượng người đăng ký</label>
+                            <input type="number" class="form-control" placeholder="Ví dụ: 500 người" min="1">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Nhóm máu ưu tiên / đang thiếu trong đợt này</label>
+                            <div class="d-flex flex-wrap gap-3 p-3 bg-light rounded-3 border">
+                                <label class="form-check"><input type="checkbox" class="form-check-input" checked> A+</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input" checked> A-</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input"> B+</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input"> B-</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input"> AB+</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input"> AB-</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input" checked> O+</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input" checked> O- (Rất hiếm)</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="alert('Đã lưu chiến dịch mới thành công (Giao diện mockup)!');" data-bs-dismiss="modal">Xác nhận tạo chiến dịch</button>
+            </div>
+        </div>
+    </div>
+</div>
+

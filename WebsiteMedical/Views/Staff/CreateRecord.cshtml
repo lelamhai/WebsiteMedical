@@ -1,0 +1,414 @@
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Tạo Hồ Sơ Khám Sàng Lọc";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        
+        <!-- HEADER CỦA TRANG TẠO HỒ SƠ -->
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 small">
+                        <li class="breadcrumb-item"><a href="/Staff/DutySchedule" class="text-decoration-none">Nghiệp vụ Y tế</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Tạo hồ sơ khám</li>
+                    </ol>
+                </nav>
+                <h2 class="fs-4 fw-bold mb-0 text-dark">Lập Hồ Sơ Khám Sàng Lọc Tình Nguyện Viên</h2>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillSampleRecord()" title="Điền nhanh dữ liệu mẫu để kiểm tra giao diện">
+                    &#9889; Điền dữ liệu mẫu
+                </button>
+                <a href="/Staff/MedicalRecords" class="btn btn-outline-danger btn-sm">
+                    &larr; Xem danh sách hồ sơ
+                </a>
+            </div>
+        </div>
+
+        <form id="createRecordForm" onsubmit="handleFormSubmit(event)">
+            
+            <!-- SECTION 1: THÔNG TIN CHIẾN DỊCH & BÀN KHÁM -->
+            <div class="content-card mb-4">
+                <div class="content-card-header bg-light">
+                    <h3 class="card-heading fs-6 d-flex align-items-center gap-2">
+                        <span class="badge bg-danger rounded-pill">1</span>
+                        <span>Chiến Dịch & Bàn Khám Phụ Trách</span>
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Chiến dịch hiến máu đang trực <span class="text-danger">*</span></label>
+                            <select class="form-select" id="campaignSelect" required>
+                                <option value="CD-2026-001" selected>Hành Trình Đỏ 2026 - Giọt Hồng Tri Ân (Sảnh A - Q.1, TP.HCM)</option>
+                                <option value="CD-2026-002">Giọt Máu Nghĩa Tình - PTIT (Hội trường A2)</option>
+                                <option value="CD-2026-003">Blouse Trắng - Trái Tim Hồng 2026</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Bàn khám sàng lọc <span class="text-danger">*</span></label>
+                            <select class="form-select" id="deskSelect" required>
+                                <option value="01">Bàn khám số 01</option>
+                                <option value="02" selected>Bàn khám số 02</option>
+                                <option value="03">Bàn khám số 03</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Bác sĩ khám phụ trách</label>
+                            <input type="text" class="form-control" value="BS. Lê Hoàng Long" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: THÔNG TIN TÌNH NGUYỆN VIÊN -->
+            <div class="content-card mb-4">
+                <div class="content-card-header bg-light">
+                    <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2">
+                        <h3 class="card-heading fs-6 d-flex align-items-center gap-2 mb-0">
+                            <span class="badge bg-danger rounded-pill">2</span>
+                            <span>Thông Tin Tình Nguyện Viên (Người Hiến Máu)</span>
+                        </h3>
+                        <span class="text-muted small">Có thể quét CCCD hoặc nhập để tự động điền</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="citizenId">Số CCCD / Mã định danh <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="citizenId" placeholder="12 chữ số CCCD" maxlength="12" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="lookupCitizen()" title="Tra cứu hồ sơ cũ nếu đã từng hiến">
+                                    Tìm
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold" for="fullName">Họ và tên đầy đủ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="fullName" placeholder="Ví dụ: NGUYỄN VĂN AN" style="text-transform: uppercase;" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="dob">Ngày sinh <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="dob" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Giới tính <span class="text-danger">*</span></label>
+                            <select class="form-select" id="gender" required>
+                                <option value="Male" selected>Nam</option>
+                                <option value="Female">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="phone">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phone" placeholder="09xxxxxxxx" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold" for="email">Địa chỉ Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="address">Địa chỉ thường trú / Nơi ở hiện tại</label>
+                            <input type="text" class="form-control" id="address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="bloodGroupKnown">Nhóm máu (nếu đã biết)</label>
+                            <select class="form-select" id="bloodGroupKnown">
+                                <option value="" selected>Chưa rõ</option>
+                                <option value="O">Nhóm O</option>
+                                <option value="A">Nhóm A</option>
+                                <option value="B">Nhóm B</option>
+                                <option value="AB">Nhóm AB</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="donationCount">Số lần đã hiến máu</label>
+                            <input type="number" class="form-control" id="donationCount" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: KHÁM LÂM SÀNG & CHỈ SỐ SINH TỒN -->
+            <div class="content-card mb-4">
+                <div class="content-card-header bg-light">
+                    <h3 class="card-heading fs-6 d-flex align-items-center gap-2">
+                        <span class="badge bg-danger rounded-pill">3</span>
+                        <span>Khám Lâm Sàng & Chỉ Số Sinh Tồn (Vital Signs)</span>
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="weight">Cân nặng (kg) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="weight" step="0.5" placeholder="Ví dụ: 55" required>
+                                <span class="input-group-text">kg</span>
+                            </div>
+                            <span class="form-text small text-muted">&ge; 42kg (Nữ), &ge; 45kg (Nam)</span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="height">Chiều cao (cm)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="height" placeholder="Ví dụ: 165">
+                                <span class="input-group-text">cm</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="bloodPressure">Huyết áp (mmHg) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="bloodPressure" placeholder="Ví dụ: 120/80" required>
+                            <span class="form-text small text-muted">Chuẩn: 100/60 &rarr; 140/90</span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold" for="pulse">Mạch / Nhịp tim (lần/phút) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="pulse" placeholder="Ví dụ: 75" required>
+                                <span class="input-group-text">l/ph</span>
+                            </div>
+                            <span class="form-text small text-muted">Chuẩn: 60 - 90 lần/phút</span>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Tình trạng lâm sàng chung:</label>
+                            <div class="d-flex flex-wrap gap-4 p-3 bg-light rounded-3 border">
+                                <label class="form-check"><input type="checkbox" class="form-check-input" id="chkAlert" checked> Tỉnh táo, tiếp xúc tốt</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input" id="chkMucosa" checked> Da niêm mạc hồng hào</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input" id="chkNoFever" checked> Không sốt, không ho</label>
+                                <label class="form-check"><input type="checkbox" class="form-check-input" id="chkNoLymph" checked> Hạch ngoại biên không sưng</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: TIỀN SỬ BỆNH & SÀNG LỌC NHANH -->
+            <div class="content-card mb-4">
+                <div class="content-card-header bg-light">
+                    <h3 class="card-heading fs-6 d-flex align-items-center gap-2">
+                        <span class="badge bg-danger rounded-pill">4</span>
+                        <span>Tiền Sử Y Tế & Câu Hỏi Sàng Lọc (Hỏi Bệnh)</span>
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <p class="text-muted small mb-3">Tích chọn nếu người hiến có bất kỳ tình trạng nào dưới đây (chống chỉ định / tạm hoãn):</p>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="form-check p-2 rounded border bg-light">
+                                <input class="form-check-input ms-1" type="checkbox" id="risk1">
+                                <label class="form-check-label ms-2 small" for="risk1">
+                                    Có tiền sử bệnh tim mạch, huyết áp, lao phổi, suy thận hoặc động kinh
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check p-2 rounded border bg-light">
+                                <input class="form-check-input ms-1" type="checkbox" id="risk2">
+                                <label class="form-check-label ms-2 small" for="risk2">
+                                    Nhiễm hoặc nghi ngờ Viêm gan B, Viêm gan C, HIV hoặc bệnh lây qua máu
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check p-2 rounded border bg-light">
+                                <input class="form-check-input ms-1" type="checkbox" id="risk3">
+                                <label class="form-check-label ms-2 small" for="risk3">
+                                    Trong 6 tháng qua: Có phẫu thuật lớn, xăm hình, xỏ khuyên, truyền máu
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check p-2 rounded border bg-light">
+                                <input class="form-check-input ms-1" type="checkbox" id="risk4">
+                                <label class="form-check-label ms-2 small" for="risk4">
+                                    Trong 7 ngày qua: Đang dùng thuốc kháng sinh, giảm đau, tiêm vắc xin
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-check p-2 rounded border bg-light">
+                                <input class="form-check-input ms-1" type="checkbox" id="risk5">
+                                <label class="form-check-label ms-2 small" for="risk5">
+                                    (Đối với nữ) Đang có thai, đang nuôi con nhỏ dưới 12 tháng hoặc trong kỳ kinh nguyệt
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: XÉT NGHIỆM TẠI CHỖ & KẾT LUẬN CỦA BÁC SĨ -->
+            <div class="content-card mb-4 border-danger">
+                <div class="content-card-header bg-danger text-white">
+                    <h3 class="card-heading fs-6 d-flex align-items-center gap-2 text-white mb-0">
+                        <span class="badge bg-white text-danger rounded-pill">5</span>
+                        <span>Xét Nghiệm Nhanh & Kết Luận Của Bác Sĩ Sàng Lọc</span>
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="hbTest">Định lượng Hemoglobin (Hb) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="hbTest" placeholder="Ví dụ: 135" required>
+                                <span class="input-group-text">g/L</span>
+                            </div>
+                            <span class="form-text small text-muted">Tiêu chuẩn: &ge; 120 g/L đối với nữ, &ge; 125 g/L đối với nam</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="hbsAgTest">Test nhanh HBsAg (Kháng nguyên Viêm gan B) <span class="text-danger">*</span></label>
+                            <select class="form-select" id="hbsAgTest" required>
+                                <option value="Negative" selected>Âm tính (-)</option>
+                                <option value="Positive">Dương tính (+)</option>
+                                <option value="Undetermined">Nghi ngờ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- KẾT LUẬN CUỐI CÙNG -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold fs-6">Đánh giá & Kết luận của Bác sĩ: <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-wrap gap-4 p-3 rounded-3 border" style="background-color: #fdf2f2;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="doctorVerdict" id="verdictPass" value="Pass" checked onchange="toggleVerdictSections()">
+                                <label class="form-check-label fw-bold text-success fs-6" for="verdictPass">
+                                    &check; ĐẠT ĐIỀU KIỆN HIẾN MÁU
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="doctorVerdict" id="verdictFail" value="Fail" onchange="toggleVerdictSections()">
+                                <label class="form-check-label fw-bold text-danger fs-6" for="verdictFail">
+                                    &#10006; TẠM HOÃN / KHÔNG ĐẠT ĐIỀU KIỆN
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KHỐI CHỈ ĐỊNH LẤY MÁU (KHI ĐẠT) -->
+                    <div id="passOptions" class="p-3 border rounded-3 mb-3 bg-light">
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" for="assignedVolume">Chỉ định dung tích máu lấy:</label>
+                                <select class="form-select" id="assignedVolume">
+                                    <option value="250">250 ml (Người hiến 42 - 50 kg)</option>
+                                    <option value="350" selected>350 ml (Tiêu chuẩn phổ biến &ge; 50 kg)</option>
+                                    <option value="450">450 ml (Người thể trạng tốt &ge; 60 kg)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Lời dặn trước khi lấy máu:</label>
+                                <input type="text" class="form-control" value="Uống nhiều nước ấm, ăn nhẹ, ngồi nghỉ 5 phút trước khi lên giường lấy máu">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KHỐI GHI RÕ LÝ DO KHÔNG ĐẠT (KHI KHÔNG ĐẠT) -->
+                    <div id="failOptions" class="p-3 border border-danger-subtle rounded-3 mb-3 d-none" style="background-color: #fff5f5;">
+                        <label class="form-label fw-bold text-danger">Chọn lý do không đạt (Lưu vết vào hồ sơ y tế):</label>
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            <label class="form-check"><input type="checkbox" class="form-check-input" name="failReason" value="Huyết áp không ổn định"> Huyết áp cao / thấp</label>
+                            <label class="form-check"><input type="checkbox" class="form-check-input" name="failReason" value="Thiếu máu (Hb thấp)"> Thiếu máu (Hb &lt; 120 g/l)</label>
+                            <label class="form-check"><input type="checkbox" class="form-check-input" name="failReason" value="Cân nặng dưới chuẩn"> Cân nặng không đủ chuẩn</label>
+                            <label class="form-check"><input type="checkbox" class="form-check-input" name="failReason" value="HBsAg Dương tính"> Viêm gan B (HBsAg +)</label>
+                            <label class="form-check"><input type="checkbox" class="form-check-input" name="failReason" value="Đang dùng thuốc"> Đang dùng thuốc kháng sinh</label>
+                            <label class="form-check"><input type="checkbox" class="form-check-input" name="failReason" value="Mệt mỏi/Mất ngủ"> Thể trạng mệt mỏi, mất ngủ</label>
+                        </div>
+                        <label class="form-label fw-semibold">Lời dặn & Hẹn thời gian tái khám:</label>
+                        <textarea class="form-control" id="failNote" rows="2" placeholder="Ví dụ: Nghỉ ngơi bồi dưỡng, uống bổ sung sắt và hẹn tái khám lại sau 1 tháng..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- NÚT THAO TÁC SUBMIT -->
+            <div class="d-flex align-items-center justify-content-between mb-5 flex-wrap gap-2">
+                <button type="reset" class="btn btn-outline-secondary">
+                    Làm mới form
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger px-4 py-2 fw-semibold">
+                        &check; Lưu Hồ Sơ Khám
+                    </button>
+                    <button type="button" class="btn btn-success px-4 py-2 fw-semibold" onclick="saveAndProceed()">
+                        &check; Lưu & Chuyển Sang Bàn Lấy Máu &rarr;
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleVerdictSections() {
+        const isPass = document.getElementById('verdictPass').checked;
+        const passOptions = document.getElementById('passOptions');
+        const failOptions = document.getElementById('failOptions');
+
+        if (isPass) {
+            passOptions.classList.remove('d-none');
+            failOptions.classList.add('d-none');
+        } else {
+            passOptions.classList.add('d-none');
+            failOptions.classList.remove('d-none');
+        }
+    }
+
+    function fillSampleRecord() {
+        document.getElementById('citizenId').value = "079203008899";
+        document.getElementById('fullName').value = "HOÀNG MINH ĐỨC";
+        document.getElementById('dob').value = "2000-08-15";
+        document.getElementById('gender').value = "Male";
+        document.getElementById('phone').value = "0977889900";
+        document.getElementById('email').value = "duc.hoang@gmail.com";
+        document.getElementById('address').value = "128 Nguyễn Trãi, P. Bến Thành, Q.1, TP.HCM";
+        document.getElementById('bloodGroupKnown').value = "O";
+        document.getElementById('donationCount').value = "2";
+        
+        document.getElementById('weight').value = "66";
+        document.getElementById('height').value = "172";
+        document.getElementById('bloodPressure').value = "120/80";
+        document.getElementById('pulse').value = "74";
+        document.getElementById('hbTest').value = "142";
+        document.getElementById('hbsAgTest').value = "Negative";
+
+        document.getElementById('verdictPass').checked = true;
+        toggleVerdictSections();
+
+        alert("Đã điền thông tin hồ sơ mẫu chuẩn y tế!");
+    }
+
+    function lookupCitizen() {
+        const cccd = document.getElementById('citizenId').value.trim();
+        if (!cccd) {
+            alert("Vui lòng nhập số CCCD để tra cứu!");
+            return;
+        }
+        fillSampleRecord();
+        document.getElementById('citizenId').value = cccd;
+    }
+
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        const fullName = document.getElementById('fullName').value;
+        const isPass = document.getElementById('verdictPass').checked;
+        
+        if (isPass) {
+            alert(`Đã lưu thành công hồ sơ khám của tình nguyện viên: ${fullName}.\nKết quả: ĐẠT ĐIỀU KIỆN HIẾN MÁU.`);
+        } else {
+            alert(`Đã lưu hồ sơ khám của: ${fullName}.\nKết quả: TẠM HOÃN / KHÔNG ĐẠT (Đã lưu lý do vào hồ sơ y tế).`);
+        }
+    }
+
+    function saveAndProceed() {
+        const fullName = document.getElementById('fullName').value || "HOÀNG MINH ĐỨC";
+        alert(`Đã lưu hồ sơ cho ${fullName} và chuyển tiếp sang bàn lấy máu!`);
+        window.location.href = "/Staff/CheckIn";
+    }
+</script>
+}
+
