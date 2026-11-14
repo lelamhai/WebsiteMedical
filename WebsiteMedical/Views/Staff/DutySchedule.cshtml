@@ -1,153 +1,101 @@
+@model WebsiteMedical.Models.StaffScheduleViewModel
+
 @{
-    Layout = "_StaffLayout";
-    ViewData["Title"] = "Phân Công Trực Campaigns (Duty Schedule)";
+	Layout = "_StaffLayout";
+	ViewData["Title"] = "Phân Công Lịch Trực";
+
+	var today = DateTime.Today;
+	var upcomingCount = Model.Schedules.Count(schedule => schedule.EventDate.Date >= today);
+	var todayCount = Model.Schedules.Count(schedule => schedule.EventDate.Date == today);
+	var firstItem = Model.TotalItems == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+	var lastItem = Math.Min(Model.Page * Model.PageSize, Model.TotalItems);
 }
 
-<!-- THẺ THỐNG KÊ CA TRỰC -->
-<div class="row g-3 mb-4">
-    <div class="col-12 col-sm-6 col-xl-4">
-        <div class="stat-card">
-            <div class="stat-icon red">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
-            <div>
-                <div class="stat-value text-danger">Ca Sáng (Đang diễn ra)</div>
-                <div class="stat-title">07:30 - 11:30 | Phòng Khám Sàng Lọc số 2</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-4">
-        <div class="stat-card">
-            <div class="stat-icon blue">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line></svg>
-            </div>
-            <div>
-                <div class="stat-value text-primary">5 Ca trực</div>
-                <div class="stat-title">Tổng số ca được phân công tuần này</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-4">
-        <div class="stat-card">
-            <div class="stat-icon green">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </div>
-            <div>
-                <div class="stat-value text-success">85 / 100</div>
-                <div class="stat-title">Hồ sơ đã khám trong ca hôm nay</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- BẢNG LỊCH PHÂN CÔNG TRỰC -->
 <div class="content-card">
-    <div class="content-card-header">
-        <div class="d-flex align-items-center gap-3">
-            <h2 class="card-heading">Danh Sách Ca Trực Phân Công</h2>
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Chiến dịch tháng 11 - 12/2026</span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <select class="form-select form-select-sm" style="width: 200px;">
-                <option selected>Tất cả chiến dịch</option>
-                <option>Hành Trình Đỏ 2026</option>
-                <option>Giọt Máu Nghĩa Tình (PTIT)</option>
-            </select>
-            <input type="date" class="form-control form-control-sm" value="2026-11-14" style="width: 150px;">
-        </div>
-    </div>
+	<div class="content-card-header">
+		<div>
+			<h2 class="card-heading">Danh Sách Lịch Trực</h2>
+		</div>
+	</div>
 
-    <div class="table-responsive">
-        <table class="table table-custom table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Chiến dịch hiến máu</th>
-                    <th>Ngày trực</th>
-                    <th>Khung giờ ca trực</th>
-                    <th>Địa điểm điểm hiến</th>
-                    <th>Nhiệm vụ phân công</th>
-                    <th>Trạng thái</th>
-                    <th class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="table-danger-subtle" style="background-color: #fff8f8;">
-                    <td>
-                        <strong class="text-danger d-block">Hành Trình Đỏ 2026 - Giọt Hồng Tri Ân</strong>
-                        <span class="text-muted small">Điểm tiếp nhận: Sảnh A</span>
-                    </td>
-                    <td><strong>Hôm nay (14/11/2026)</strong></td>
-                    <td>
-                        <span class="badge bg-danger">07:30 - 11:30 (Ca Sáng)</span>
-                    </td>
-                    <td>Nhà văn hóa Thanh niên, Q.1, TP.HCM</td>
-                    <td>
-                        <strong class="text-dark">Bác sĩ khám lâm sàng & sàng lọc</strong>
-                        <span class="text-muted d-block small">Bàn khám số 02</span>
-                    </td>
-                    <td><span class="badge-status badge-active">Đang trực</span></td>
-                    <td class="text-end">
-                        <a href="/Staff/MedicalRecords" class="btn btn-danger btn-sm">Vào bàn khám &rarr;</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong class="text-dark d-block">Hành Trình Đỏ 2026 - Giọt Hồng Tri Ân</strong>
-                        <span class="text-muted small">Điểm tiếp nhận: Sảnh A</span>
-                    </td>
-                    <td>15/11/2026</td>
-                    <td>
-                        <span class="badge bg-primary">13:30 - 17:00 (Ca Chiều)</span>
-                    </td>
-                    <td>Nhà văn hóa Thanh niên, Q.1, TP.HCM</td>
-                    <td>
-                        <strong class="text-dark">Bác sĩ khám lâm sàng & sàng lọc</strong>
-                        <span class="text-muted d-block small">Bàn khám số 01</span>
-                    </td>
-                    <td><span class="badge-status badge-upcoming">Sắp diễn ra</span></td>
-                    <td class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="alert('Ca trực chưa bắt đầu!');">Xem chi tiết</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong class="text-dark d-block">Giọt Máu Nghĩa Tình - Mùa Đông Ấm</strong>
-                        <span class="text-muted small">Điểm hiến cơ sở đào tạo</span>
-                    </td>
-                    <td>20/11/2026</td>
-                    <td>
-                        <span class="badge bg-primary">07:30 - 11:30 (Ca Sáng)</span>
-                    </td>
-                    <td>Học viện Công nghệ Bưu chính Viễn thông (PTIT)</td>
-                    <td>
-                        <strong class="text-dark">Khám sàng lọc & Xét nghiệm nhanh</strong>
-                        <span class="text-muted d-block small">Hội trường A2</span>
-                    </td>
-                    <td><span class="badge-status badge-upcoming">Chờ xác nhận</span></td>
-                    <td class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="alert('Ca trực chưa bắt đầu!');">Xem chi tiết</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong class="text-dark d-block">Blouse Trắng - Trái Tim Hồng 2026</strong>
-                        <span class="text-muted small">Điểm hiến bệnh viện</span>
-                    </td>
-                    <td>12/10/2026</td>
-                    <td>
-                        <span class="badge bg-secondary">07:30 - 11:30 (Ca Sáng)</span>
-                    </td>
-                    <td>Bệnh viện Bạch Mai, Hà Nội</td>
-                    <td>
-                        <strong class="text-dark">Bác sĩ khám lâm sàng</strong>
-                    </td>
-                    <td><span class="badge-status badge-ended">Đã hoàn thành</span></td>
-                    <td class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm">Xem lịch sử</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+	@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+	{
+		<div class="schedule-message schedule-message-error" role="alert">
+			<strong>Không tải được lịch trực.</strong>
+			<span>@Model.ErrorMessage</span>
+			<a class="btn btn-sm btn-outline-danger" href="@Context.Request.Path">Thử lại</a>
+		</div>
+	}
+	else if (Model.Schedules.Count == 0)
+	{
+		<div class="schedule-message">
+			<strong>Chưa có lịch trực</strong>
+			<span>Hiện chưa có chiến dịch nào được phân công cho bạn.</span>
+		</div>
+	}
+	else
+	{
+		<div class="table-responsive">
+			<table class="table table-custom table-hover schedule-table mb-0">
+				<thead>
+					<tr>
+						<th class="text-end">Mã chiến dịch</th>
+						<th>Chiến dịch</th>
+						<th>Ngày và giờ sự kiện</th>
+						<th>Ca trực</th>
+						<th>Địa điểm</th>
+						<th>Trạng thái</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var schedule in Model.Schedules.OrderBy(item => item.EventDate))
+					{
+						var isToday = schedule.EventDate.Date == today;
+						var isCompleted = schedule.EventDate.Date < today;
+						var statusText = isToday ? "Đang diễn ra" : isCompleted ? "Đã hoàn thành" : "Sắp diễn ra";
+						var statusClass = isToday ? "badge-active" : isCompleted ? "badge-ended" : "badge-upcoming";
+						<tr class="@(isToday ? "schedule-today" : null)">
+							<td><span class="badge bg-secondary-subtle text-dark border fw-bold">#@schedule.CampaignId</span></td>
+							<td>
+								<strong class="schedule-title">@schedule.Title</strong>
+							</td>
+							<td>
+								<strong>@schedule.EventDate.ToString("dd/MM/yyyy")</strong>
+								<span class="text-muted d-block small">@schedule.EventDate.ToString("HH:mm")</span>
+							</td>
+							<td><span class="shift-badge">@schedule.ShiftTime</span></td>
+							<td><span class="location-text">@schedule.Location</span></td>
+							<td><span class="badge-status @statusClass">@statusText</span></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		<div class="schedule-pagination">
+			<div class="text-muted small"></div>
+
+			@if (Model.TotalPages > 1)
+			{
+				<nav aria-label="Phân trang lịch trực">
+					<ul class="pagination pagination-sm mb-0">
+						<li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+							<a class="page-link" href="/Staff/DutySchedule?page=@(Model.Page - 1)" aria-label="Trang trước">&laquo; Trước</a>
+						</li>
+
+						@for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
+						{
+							<li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+								<a class="page-link" href="/Staff/DutySchedule?page=@pageNumber">@pageNumber</a>
+							</li>
+						}
+
+						<li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+							<a class="page-link" href="/Staff/DutySchedule?page=@(Model.Page + 1)" aria-label="Trang sau">Sau &raquo;</a>
+						</li>
+					</ul>
+				</nav>
+			}
+		</div>
+	}
 </div>
-
