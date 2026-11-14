@@ -105,14 +105,6 @@ namespace WebsiteMedical.Controllers
         {
             return View();
         }
-
-        // Menu 3: Tiếp nhận & Check-in
-        [HttpGet]
-        [Route("Staff/CheckIn")]
-        public IActionResult CheckIn()
-        {
-            return View();
-        }
     }
 }
 
