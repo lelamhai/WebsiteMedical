@@ -12,6 +12,7 @@ namespace WebsiteMedical.Controllers
         private readonly string CAMPAIGN_LIST_API = $"{BASE_URL}/api/Campaign/list";
         private readonly string CAMPAIGN_CREATE_API = $"{BASE_URL}/api/Campaign/create";
         private readonly string STAFF_SEARCH_API = $"{BASE_URL}/api/Staff/search";
+        private readonly string CAMPAIGN_DELETE_API = $"{BASE_URL}/api/Campaign/delete";
 
         [HttpGet]
         [Route("Admin")]
@@ -179,6 +180,48 @@ namespace WebsiteMedical.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, JsonSerializer.Serialize(new { message = $"Không thể kết nối backend: {ex.Message}", data = new List<object>() }));
+            }
+        }
+
+        // DELETE: Xóa chiến dịch → gọi API DELETE https://localhost:7182/api/Campaign/delete/{id}
+        [HttpDelete]
+        [Route("Admin/Campaign/Delete/{id:int}")]
+        public async Task<IActionResult> DeleteCampaign(int id)
+        {
+            try
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var client = new HttpClient(handler);
+
+                // Lấy AccessToken từ Authorization Header hoặc Cookie
+                string? token = null;
+                if (Request.Headers.TryGetValue("Authorization", out var authHeader) && !string.IsNullOrEmpty(authHeader))
+                {
+                    var authStr = authHeader.ToString().Trim();
+                    token = authStr.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                        ? authStr.Substring(7).Trim()
+                        : authStr;
+                }
+                if (string.IsNullOrEmpty(token))
+                    token = Request.Cookies["AccessToken"];
+
+                if (!string.IsNullOrEmpty(token))
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await client.DeleteAsync($"{CAMPAIGN_DELETE_API}/{id}");
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                    return Json(new { success = true, message = "Chiến dịch đã được xóa thành công!" });
+
+                return Json(new { success = false, message = $"API lỗi {(int)response.StatusCode}: {responseBody}" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Không thể kết nối backend: {ex.Message}" });
             }
         }
 
