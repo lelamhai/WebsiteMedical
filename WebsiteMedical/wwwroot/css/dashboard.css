@@ -302,6 +302,17 @@ body.dashboard-body {
     gap: 12px;
 }
 
+.medical-records-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    width: 100%;
+}
+
+.medical-records-search {
+    justify-self: end;
+}
+
 .card-heading {
     font-size: 1.05rem;
     font-weight: 700;

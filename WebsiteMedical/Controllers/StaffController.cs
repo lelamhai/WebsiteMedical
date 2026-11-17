@@ -9,6 +9,8 @@ namespace WebsiteMedical.Controllers
     {
         public const string BASE_URL = "https://localhost:7182";
         private readonly string STAFF_SCHEDULE_API = $"{BASE_URL}/api/Staff/schedule";
+        private readonly string CAMPAIGN_API = $"{BASE_URL}/api/Campaign/list";
+        private readonly string HEALTH_SCREENING_API = $"{BASE_URL}/api/healthscreening/list";
 
         [HttpGet]
         [Route("Staff")]
@@ -101,9 +103,136 @@ namespace WebsiteMedical.Controllers
         // Menu 2: Quản lý hồ sơ khám
         [HttpGet]
         [Route("Staff/MedicalRecords")]
-        public IActionResult MedicalRecords()
+        public async Task<IActionResult> MedicalRecords()
         {
+            try
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var client = new HttpClient(handler);
+
+                string? token = null;
+                if (Request.Headers.TryGetValue("Authorization", out var authHeader)
+                    && !string.IsNullOrEmpty(authHeader))
+                {
+                    var authStr = authHeader.ToString().Trim();
+                    token = authStr.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                        ? authStr.Substring(7).Trim()
+                        : authStr;
+                }
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = Request.Cookies["AccessToken"];
+                }
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await client.GetAsync(CAMPAIGN_API);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var apiResponse = JsonSerializer.Deserialize<CampaignApiResponse>(responseContent, options);
+
+                    if (apiResponse?.Data?.Items != null)
+                    {
+                        ViewBag.Campaigns = apiResponse.Data.Items;
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = apiResponse?.Message ?? "Không có dữ liệu chiến dịch";
+                    }
+                }
+                else
+                {
+                    ViewBag.ErrorMessage = $"Không thể tải chiến dịch (HTTP {(int)response.StatusCode}).";
+                }
+            }
+            catch (HttpRequestException)
+            {
+                ViewBag.ErrorMessage = $"Không thể kết nối đến {CAMPAIGN_API}. Vui lòng đảm bảo backend đang chạy.";
+            }
+            catch (TaskCanceledException)
+            {
+                ViewBag.ErrorMessage = "Yêu cầu tải chiến dịch đã hết thời gian chờ. Vui lòng thử lại sau.";
+            }
+
             return View();
+        }
+
+        // API Proxy: GET health screening list (tránh CORS)
+        [HttpGet]
+        [Route("api/staff/health-screenings")]
+        public async Task<IActionResult> GetHealthScreenings(int campaignId)
+        {
+            try
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var client = new HttpClient(handler);
+
+                // Lấy token từ header hoặc cookie
+                string? token = null;
+                if (Request.Headers.TryGetValue("Authorization", out var authHeader)
+                    && !string.IsNullOrEmpty(authHeader))
+                {
+                    var authStr = authHeader.ToString().Trim();
+                    token = authStr.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                        ? authStr.Substring(7).Trim()
+                        : authStr;
+                }
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = Request.Cookies["AccessToken"];
+                }
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                // Gọi API backend
+                var apiUrl = $"{HEALTH_SCREENING_API}?campaignId={campaignId}";
+                var response = await client.GetAsync(apiUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, new
+                    {
+                        success = false,
+                        message = $"API Backend trả về lỗi: {response.StatusCode}"
+                    });
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Không thể kết nối đến API Backend: {ex.Message}"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Lỗi khi tải dữ liệu: {ex.Message}"
+                });
+            }
         }
     }
 }

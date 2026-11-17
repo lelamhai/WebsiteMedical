@@ -1,261 +1,312 @@
 @{
-    Layout = "_StaffLayout";
-    ViewData["Title"] = "Quản Lý Hồ Sơ Khám Sàng Lọc Y Tế";
+	Layout = "_StaffLayout";
+	ViewData["Title"] = "Quản Lý Hồ Sơ Khám";
 }
-
-<!-- THẺ THỐNG KÊ KẾT QUẢ KHÁM -->
-<div class="row g-3 mb-4">
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon blue">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            </div>
-            <div>
-                <div class="stat-value">50</div>
-                <div class="stat-title">Tổng hồ sơ trong ca</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon green">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div>
-                <div class="stat-value text-success">42</div>
-                <div class="stat-title">Đạt điều kiện lấy máu</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon red">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-            </div>
-            <div>
-                <div class="stat-value text-danger">8</div>
-                <div class="stat-title">Không đạt (Có lý do bệnh lý)</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon amber">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
-            <div>
-                <div class="stat-value text-warning">5</div>
-                <div class="stat-title">Đang đợi bác sĩ khám</div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- NỘI DUNG CHÍNH -->
 <div class="content-card">
-    <div class="content-card-header">
-        <div class="d-flex align-items-center gap-3">
-            <h2 class="card-heading">Hồ Sơ Tình Nguyện Viên Khám Sàng Lọc</h2>
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-outline-secondary active">Tất cả</button>
-                <button type="button" class="btn btn-outline-success">Đạt</button>
-                <button type="button" class="btn btn-outline-danger">Không đạt</button>
-                <button type="button" class="btn btn-outline-warning">Chờ khám</button>
-            </div>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <div class="input-group input-group-sm" style="width: 250px;">
-                <input type="text" class="form-control" placeholder="Tìm theo Mã TNV, Họ tên, CCCD...">
-            </div>
-        </div>
-    </div>
+	<div class="content-card-header">
+		<div class="medical-records-toolbar">
+			<div class="d-flex align-items-center gap-2">
+				<label class="form-label fw-semibold mb-0" style="white-space: nowrap;">Chiến Dịch:</label>
+				<select id="campaignSelect" class="form-select form-select-sm" style="width: 350px;">
+					<option value="">-- Chọn chiến dịch --</option>
+					@if (ViewBag.Campaigns != null)
+					{
+						@foreach (var campaign in ViewBag.Campaigns)
+						{
+							<option value="@campaign.CampaignId">@campaign.Title (@campaign.Location)</option>
+						}
+					}
+				</select>
+			</div>
+			<div class="d-flex align-items-center gap-2 medical-records-search">
+				<div class="input-group input-group-sm">
+					<input type="text" class="form-control" id="searchInput" placeholder="Tìm theo tên người hiến máu..." style="width: 300px;">
+					<button class="btn btn-outline-secondary" type="button" title="Tìm kiếm" id="searchBtn">
+						Tìm
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <div class="table-responsive">
-        <table class="table table-custom table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>Mã TNV & Họ Tên</th>
-                    <th>Thông tin cơ bản</th>
-                    <th>Chỉ số sinh tồn</th>
-                    <th>Tiền sử bệnh khai báo</th>
-                    <th>Kết quả khám</th>
-                    <th>Ghi chú lý do không đạt</th>
-                    <th class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <strong class="text-dark d-block">Nguyễn Văn An</strong>
-                        <span class="text-muted small">CCCD: 001201004567 | TNV-8821</span>
-                    </td>
-                    <td>Nam &bull; 1998 (28 tuổi) &bull; 68kg</td>
-                    <td>
-                        <div>Huyết áp: <strong>120/80</strong> mmHg</div>
-                        <div class="text-muted small">Mạch: 75 l/ph &bull; Hb: 135 g/l</div>
-                    </td>
-                    <td><span class="text-success">&check; Bình thường, không bệnh mạn tính</span></td>
-                    <td><span class="badge-status badge-active">&check; ĐẠT ĐIỀU KIỆN</span></td>
-                    <td><span class="text-muted small">-</span></td>
-                    <td class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#examModal">Cập nhật</button>
-                    </td>
-                </tr>
-                <tr class="table-danger-subtle" style="background-color: #fffafa;">
-                    <td>
-                        <strong class="text-dark d-block">Trần Thị Bích</strong>
-                        <span class="text-muted small">CCCD: 034199009876 | TNV-8822</span>
-                    </td>
-                    <td>Nữ &bull; 1999 (27 tuổi) &bull; 44kg</td>
-                    <td>
-                        <div class="text-danger">Huyết áp: <strong>148/95</strong> mmHg</div>
-                        <div class="text-muted small">Mạch: 92 l/ph &bull; Hb: 110 g/l</div>
-                    </td>
-                    <td><span class="text-warning">&excl; Mệt mỏi, vừa uống thuốc cảm cúm</span></td>
-                    <td><span class="badge-status badge-fail">&#10006; KHÔNG ĐẠT</span></td>
-                    <td>
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Huyết áp cao & Thiếu máu nhẹ</span>
-                        <div class="text-muted small mt-1">Đề nghị nghỉ ngơi và hẹn tái khám sau 2 tuần.</div>
-                    </td>
-                    <td class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#examModal">Sửa ghi chú</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong class="text-dark d-block">Lê Minh Cường</strong>
-                        <span class="text-muted small">CCCD: 079203001234 | TNV-8823</span>
-                    </td>
-                    <td>Nam &bull; 2003 (23 tuổi) &bull; 72kg</td>
-                    <td>
-                        <div>Huyết áp: <strong>118/78</strong> mmHg</div>
-                        <div class="text-muted small">Mạch: 72 l/ph &bull; Hb: 140 g/l</div>
-                    </td>
-                    <td><span class="text-success">&check; Từng hiến máu 3 lần trước đó</span></td>
-                    <td><span class="badge-status badge-active">&check; ĐẠT ĐIỀU KIỆN</span></td>
-                    <td><span class="text-muted small">Cho phép lấy 450ml</span></td>
-                    <td class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#examModal">Cập nhật</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong class="text-dark d-block">Hoàng Thu Dung</strong>
-                        <span class="text-muted small">CCCD: 001195007788 | TNV-8824</span>
-                    </td>
-                    <td>Nữ &bull; 1995 (31 tuổi) &bull; 41kg</td>
-                    <td>
-                        <div>Đang chờ đo sinh hiệu...</div>
-                    </td>
-                    <td><span class="text-muted">Khai báo online: Tiền sử viêm gan B</span></td>
-                    <td><span class="badge-status badge-upcoming">&#9203; CHỜ KHÁM</span></td>
-                    <td><span class="text-muted small">-</span></td>
-                    <td class="text-end">
-                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#examModal">Thực hiện khám &rarr;</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+	<div class="table-responsive">
+		<table class="table table-custom table-hover mb-0">
+			<thead>
+				<tr>
+					<th>Mã TNV</th>
+					<th>Họ Tên</th>
+					<th>Kết quả khám</th>
+					<th>Dung tích máu (ml)</th>
+					<th>Ghi chú lý do không đạt</th>
+					<th class="text-end">Thao tác</th>
+				</tr>
+			</thead>
+			<tbody id="screeningTableBody">
+				<tr>
+					<td colspan="6" class="text-center text-muted py-4">
+						Vui lòng chọn một chiến dịch để xem danh sách kết quả sàng lọc
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
 
-<!-- MODAL CẬP NHẬT KẾT QUẢ KHÁM SÀNG LỌC (ĐÚNG THEO MỤC III.2, III.3, III.4) -->
+<!-- MODAL CẬP NHẬT KỸ TẾ LỤC KỸ TẾ LỤC KỸ TẾ LỤC (ĐÚNG THEO MỤC III.2, III.3, III.4) -->
 <div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="examModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="examModalLabel">Ghi Nhận Kết Quả Khám Sàng Lọc & Xét Nghiệm Nhanh</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formExam">
-                    <div class="p-3 bg-light rounded-3 mb-3 border">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong class="fs-6 text-dark">Tình nguyện viên: Hoàng Thu Dung (TNV-8824)</strong>
-                                <div class="text-muted small">CCCD: 001195007788 &bull; Nữ &bull; Sinh năm 1995</div>
-                            </div>
-                            <span class="badge bg-secondary">Bàn khám số 02</span>
-                        </div>
-                    </div>
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title fw-bold" id="examModalLabel">Ghi Nhận Kết Quả Khám Sàng Lọc & Xét Nghiệm Nhanh</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="formExam">
+					<div class="p-3 bg-light rounded-3 mb-3 border">
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+								<strong class="fs-6 text-dark" id="volunteerInfo">Tính nguyện viên: Hoàng Thu Dung (TNV-8824)</strong>
+								<div class="text-muted small" id="volunteerDetails">CCCD: 001195007788 • Nữ • Sinh năm 1995</div>
+							</div>
+							<span class="badge bg-secondary" id="screeningBadge">Bản khám số 02</span>
+						</div>
+					</div>
 
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Huyết áp (mmHg) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" placeholder="Ví dụ: 120/80" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Mạch / Nhịp tim (l/phút)</label>
-                            <input type="number" class="form-control" placeholder="Ví dụ: 76">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Cân nặng thực tế (kg) <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" placeholder="Ví dụ: 48" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Chỉ số Hemoglobin (Hb - g/l)</label>
-                            <input type="number" class="form-control" placeholder="Ví dụ: 130">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Test nhanh HBsAg / Viêm gan</label>
-                            <select class="form-select">
-                                <option value="Negative" selected>Âm tính (-)</option>
-                                <option value="Positive">Dương tính (+)</option>
-                                <option value="Undetermined">Nghi ngờ / Cần làm lại</option>
-                            </select>
-                        </div>
-                    </div>
+					<div class="row g-3 mb-3">
+						<div class="col-md-4">
+							<label class="form-label fw-semibold">Huyết áp (mmHg) <span class="text-danger">*</span></label>
+							<input type="text" class="form-control" placeholder="Ví dụ: 120/80" required>
+						</div>
+						<div class="col-md-4">
+							<label class="form-label fw-semibold">Mạch / Nhịp tim (l/phút)</label>
+							<input type="number" class="form-control" placeholder="Ví dụ: 76">
+						</div>
+						<div class="col-md-4">
+							<label class="form-label fw-semibold">Cân nặng thực tế (kg) <span class="text-danger">*</span></label>
+							<input type="number" class="form-control" placeholder="Ví dụ: 48" required>
+						</div>
+						<div class="col-md-6">
+							<label class="form-label fw-semibold">Chỉ số Hemoglobin (Hb - g/l)</label>
+							<input type="number" class="form-control" placeholder="Ví dụ: 130">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label fw-semibold">Test nhanh HBsAg / Viêm gan</label>
+							<select class="form-select">
+								<option value="Negative" selected>Âm tính (-)</option>
+								<option value="Positive">Dương tính (+)</option>
+								<option value="Undetermined">Nghi ngờ / Cần làm lại</option>
+							</select>
+						</div>
+					</div>
 
-                    <!-- KẾT LUẬN CỦA BÁC SĨ -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Kết luận của Bác sĩ sàng lọc <span class="text-danger">*</span></label>
-                        <div class="d-flex gap-4 p-3 bg-light rounded-3 border">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="examResult" id="resultPass" value="Pass" checked>
-                                <label class="form-check-label fw-bold text-success" for="resultPass">
-                                    &check; ĐẠT ĐIỀU KIỆN (Xác nhận cho phép lấy máu)
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="examResult" id="resultFail" value="Fail">
-                                <label class="form-check-label fw-bold text-danger" for="resultFail">
-                                    &#10006; KHÔNG ĐẠT (Lưu lý do vào hồ sơ)
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+					<!-- KỸ TẾT LỤC CỦA BÁC SĨ -->
+					<div class="mb-3">
+						<label class="form-label fw-bold">Kết luận của Bác sĩ sàng lọc <span class="text-danger">*</span></label>
+						<div class="d-flex gap-4 p-3 bg-light rounded-3 border">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="examResult" id="resultPass" value="Pass" checked>
+								<label class="form-check-label fw-bold text-success" for="resultPass">
+									✓ ĐẠT ĐIỀU KIỆN (Xác nhận cho phép lấy máu)
+								</label>
+							</div>
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="examResult" id="resultFail" value="Fail">
+								<label class="form-check-label fw-bold text-danger" for="resultFail">
+									✕ KHÔNG ĐẠT (Lưu lý do vào hồ sơ)
+								</label>
+							</div>
+						</div>
+					</div>
 
-                    <!-- TRƯỜNG HỢP KHÔNG ĐẠT: CHỌN LÝ DO BỆNH LÝ (ĐÚNG MỤC III.4) -->
-                    <div id="failReasonSection" class="p-3 border rounded-3 mb-3 bg-danger-subtle border-danger-subtle">
-                        <label class="form-label fw-bold text-danger">Lý do không đạt (chọn hoặc ghi chú cụ thể):</label>
-                        <div class="d-flex flex-wrap gap-3 mb-2">
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Huyết áp cao</label>
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Huyết áp thấp</label>
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Thiếu máu / Hb thấp</label>
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Cân nặng không đủ chuẩn</label>
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Viêm gan B / C</label>
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Đang dùng thuốc kháng sinh</label>
-                            <label class="form-check"><input type="checkbox" class="form-check-input"> Mệt mỏi / Mất ngủ</label>
-                        </div>
-                        <textarea class="form-control" rows="2" placeholder="Ghi chú chi tiết lý do và lời khuyên y tế cho tình nguyện viên..."></textarea>
-                    </div>
+					<!-- TRƯỜNG HỢP KHÔNG ĐẠT: CHỌN LÝ DO BỆNH LÝ (ĐÚNG MỤC III.4) -->
+					<div id="failReasonSection" class="p-3 border rounded-3 mb-3 bg-danger-subtle border-danger-subtle">
+						<label class="form-label fw-bold text-danger">Lý do không đạt (chọn hoặc ghi chú cụ thể):</label>
+						<div class="d-flex flex-wrap gap-3 mb-2">
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Huyết áp cao</label>
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Huyết áp thấp</label>
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Thiếu máu / Hb thấp</label>
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Cân nặng không đủ chuẩn</label>
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Viêm gan B / C</label>
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Đang dùng thuốc kháng sinh</label>
+							<label class="form-check"><input type="checkbox" class="form-check-input"> Mệt mỏi / Mất ngủ</label>
+						</div>
+						<textarea class="form-control" rows="2" placeholder="Ghi chú chi tiết lý do và lời khuyên y tế cho tính nguyện viên..."></textarea>
+					</div>
 
-                    <!-- TRƯỜNG HỢP ĐẠT: CHỈ ĐỊNH DUNG TÍCH TÚI MÁU -->
-                    <div id="passVolumeSection" class="mb-3">
-                        <label class="form-label fw-semibold">Chỉ định dung tích túi máu lấy:</label>
-                        <select class="form-select">
-                            <option value="250">250 ml (Người hiến < 50kg)</option>
-                            <option value="350" selected>350 ml (Tiêu chuẩn phổ biến)</option>
-                            <option value="450">450 ml (Người thể trạng tốt > 60kg)</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" onclick="alert('Đã cập nhật kết quả hồ sơ y tế thành công!');" data-bs-dismiss="modal">Lưu kết quả khám</button>
-            </div>
-        </div>
-    </div>
+					<!-- TRƯỜNG HỢP ĐẠT: CHỈ ĐO DUNG TÍCH TÁI MÁU -->
+					<div id="passVolumeSection" class="mb-3">
+						<label class="form-label fw-semibold">Chỉ đo dung tích táy máu lấy:</label>
+						<select class="form-select">
+							<option value="250">250 ml (Người hiến < 50kg)</option>
+							<option value="350" selected>350 ml (Tiêu chuẩn phổ biến)</option>
+							<option value="450">450 ml (Người thể trạng tốt > 60kg)</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+				<button type="button" class="btn btn-danger" onclick="alert('Đã cập nhật kết quả hồ sơ y tế thành công!');" data-bs-dismiss="modal">Lưu kết quả khám</button>
+			</div>
+		</div>
+	</div>
 </div>
 
+<script>
+let screeningData = []; // Lưu dữ liệu toàn bộ để phục vụ search
+
+document.addEventListener('DOMContentLoaded', function() {
+	const campaignSelect = document.getElementById('campaignSelect');
+	const searchInput = document.getElementById('searchInput');
+	const searchBtn = document.getElementById('searchBtn');
+
+	campaignSelect.addEventListener('change', function() {
+		const campaignId = this.value;
+		console.log('Campaign selected:', campaignId);
+		searchInput.value = ''; // Clear search khi chọn chiến dịch mới
+
+		if (!campaignId) {
+			// Reset table khi không chọn
+			document.getElementById('screeningTableBody').innerHTML = `
+				<tr>
+					<td colspan="6" class="text-center text-muted py-4">
+						Vui lòng chọn một chiến dịch để xem danh sách kết quả sàng lọc
+					</td>
+				</tr>
+			`;
+			screeningData = [];
+			return;
+		}
+
+		loadHealthScreenings(campaignId);
+	});
+
+	// Search functionality
+	searchBtn.addEventListener('click', function() {
+		const searchTerm = searchInput.value.trim().toLowerCase();
+		filterScreenings(searchTerm);
+	});
+
+	// Search on Enter key
+	searchInput.addEventListener('keypress', function(e) {
+		if (e.key === 'Enter') {
+			const searchTerm = searchInput.value.trim().toLowerCase();
+			filterScreenings(searchTerm);
+		}
+	});
+});
+
+function loadHealthScreenings(campaignId) {
+	const tableBody = document.getElementById('screeningTableBody');
+	tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Đang tải...</td></tr>';
+
+	// Gọi endpoint proxy của backend thay vì gọi trực tiếp API (tránh CORS)
+	const proxyUrl = `/api/staff/health-screenings?campaignId=${campaignId}`;
+	console.log('Fetching from proxy:', proxyUrl);
+
+	fetch(proxyUrl, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Accept': 'application/json'
+		},
+		credentials: 'include' // Gửi cookies
+	})
+	.then(response => {
+		console.log('Response status:', response.status);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		return response.json();
+	})
+	.then(data => {
+		console.log('API Response:', data);
+		if (Array.isArray(data.data) && data.data.length > 0) {
+			screeningData = data.data; // Lưu dữ liệu gốc
+			renderScreenings(screeningData);
+		} else {
+			tableBody.innerHTML = `
+				<tr>
+					<td colspan="6" class="text-center text-muted py-4">
+						Không có kết quả sàng lọc cho chiến dịch này
+					</td>
+				</tr>
+			`;
+			screeningData = [];
+		}
+	})
+	.catch(error => {
+		console.error('Error loading screenings:', error);
+		tableBody.innerHTML = `
+			<tr>
+				<td colspan="6" class="text-center text-danger py-4">
+					Lỗi tải dữ liệu: ${error.message}<br>
+					<small>Hãy mở Developer Tools (F12) để xem chi tiết</small>
+				</td>
+			</tr>
+		`;
+		screeningData = [];
+	});
+}
+
+function renderScreenings(data) {
+	const tableBody = document.getElementById('screeningTableBody');
+
+	if (!data || data.length === 0) {
+		tableBody.innerHTML = `
+			<tr>
+				<td colspan="6" class="text-center text-muted py-4">
+					Không tìm thấy kết quả khớp với tìm kiếm
+				</td>
+			</tr>
+		`;
+		return;
+	}
+
+	let html = '';
+	data.forEach(screening => {
+		const rowClass = screening.screeningResult === 'Failed' ? 'table-danger-subtle' : '';
+		const statusBadge = screening.screeningResult === 'Passed' 
+			? '<span class="badge-status badge-active">✓ ĐẠT ĐIỀU KIỆN</span>'
+			: '<span class="badge-status badge-fail">✕ KHÔNG ĐẠT</span>';
+		const bloodVolumeDisplay = screening.bloodVolume || '-';
+
+		html += `
+			<tr class="${rowClass}" style="background-color: ${rowClass ? '#fffafa' : ''};">
+				<td class="fw-semibold">${screening.volunteerId}</td>
+				<td>${screening.volunteerName}</td>
+				<td>${statusBadge}</td>
+				<td class="text-center">${bloodVolumeDisplay}</td>
+				<td>
+					${screening.rejectionReason ? `<span class="text-danger small">${screening.rejectionReason}</span>` : '<span class="text-muted">-</span>'}
+				</td>
+				<td class="text-end">
+					<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#examModal">
+						${screening.screeningResult === 'Passed' ? 'Cập nhật' : 'Sửa ghi chú'}
+					</button>
+				</td>
+			</tr>
+		`;
+	});
+	tableBody.innerHTML = html;
+}
+
+function filterScreenings(searchTerm) {
+	if (!searchTerm) {
+		// Nếu search rỗng, hiển thị tất cả
+		renderScreenings(screeningData);
+		return;
+	}
+
+	// Lọc dữ liệu theo tên hoặc mã TNV
+	const filtered = screeningData.filter(screening => {
+		const name = screening.volunteerName.toLowerCase();
+		const id = screening.volunteerId.toString().toLowerCase();
+		return name.includes(searchTerm) || id.includes(searchTerm);
+	});
+
+	renderScreenings(filtered);
+}
+</script>
