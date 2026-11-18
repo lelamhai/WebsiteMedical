@@ -15,7 +15,7 @@
 					{
 						@foreach (var campaign in ViewBag.Campaigns)
 						{
-							<option value="@campaign.CampaignId">@campaign.Title (@campaign.Location)</option>
+							<option value="@campaign.CampaignId">@campaign.Title</option>
 						}
 					}
 				</select>
@@ -70,7 +70,6 @@
 								<strong class="fs-6 text-dark" id="volunteerInfo">Tính nguyện viên: Hoàng Thu Dung (TNV-8824)</strong>
 								<div class="text-muted small" id="volunteerDetails">CCCD: 001195007788 • Nữ • Sinh năm 1995</div>
 							</div>
-							<span class="badge bg-secondary" id="screeningBadge">Bản khám số 02</span>
 						</div>
 					</div>
 
@@ -137,7 +136,7 @@
 
 					<!-- TRƯỜNG HỢP ĐẠT: CHỈ ĐO DUNG TÍCH TÁI MÁU -->
 					<div id="passVolumeSection" class="mb-3">
-						<label class="form-label fw-semibold">Chỉ đo dung tích táy máu lấy:</label>
+						<label class="form-label fw-semibold">Chỉ định thể tích máu lấy:</label>
 						<select class="form-select">
 							<option value="250">250 ml (Người hiến < 50kg)</option>
 							<option value="350" selected>350 ml (Tiêu chuẩn phổ biến)</option>
@@ -154,159 +153,6 @@
 	</div>
 </div>
 
-<script>
-let screeningData = []; // Lưu dữ liệu toàn bộ để phục vụ search
-
-document.addEventListener('DOMContentLoaded', function() {
-	const campaignSelect = document.getElementById('campaignSelect');
-	const searchInput = document.getElementById('searchInput');
-	const searchBtn = document.getElementById('searchBtn');
-
-	campaignSelect.addEventListener('change', function() {
-		const campaignId = this.value;
-		console.log('Campaign selected:', campaignId);
-		searchInput.value = ''; // Clear search khi chọn chiến dịch mới
-
-		if (!campaignId) {
-			// Reset table khi không chọn
-			document.getElementById('screeningTableBody').innerHTML = `
-				<tr>
-					<td colspan="6" class="text-center text-muted py-4">
-						Vui lòng chọn một chiến dịch để xem danh sách kết quả sàng lọc
-					</td>
-				</tr>
-			`;
-			screeningData = [];
-			return;
-		}
-
-		loadHealthScreenings(campaignId);
-	});
-
-	// Search functionality
-	searchBtn.addEventListener('click', function() {
-		const searchTerm = searchInput.value.trim().toLowerCase();
-		filterScreenings(searchTerm);
-	});
-
-	// Search on Enter key
-	searchInput.addEventListener('keypress', function(e) {
-		if (e.key === 'Enter') {
-			const searchTerm = searchInput.value.trim().toLowerCase();
-			filterScreenings(searchTerm);
-		}
-	});
-});
-
-function loadHealthScreenings(campaignId) {
-	const tableBody = document.getElementById('screeningTableBody');
-	tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Đang tải...</td></tr>';
-
-	// Gọi endpoint proxy của backend thay vì gọi trực tiếp API (tránh CORS)
-	const proxyUrl = `/api/staff/health-screenings?campaignId=${campaignId}`;
-	console.log('Fetching from proxy:', proxyUrl);
-
-	fetch(proxyUrl, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'Accept': 'application/json'
-		},
-		credentials: 'include' // Gửi cookies
-	})
-	.then(response => {
-		console.log('Response status:', response.status);
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
-		}
-		return response.json();
-	})
-	.then(data => {
-		console.log('API Response:', data);
-		if (Array.isArray(data.data) && data.data.length > 0) {
-			screeningData = data.data; // Lưu dữ liệu gốc
-			renderScreenings(screeningData);
-		} else {
-			tableBody.innerHTML = `
-				<tr>
-					<td colspan="6" class="text-center text-muted py-4">
-						Không có kết quả sàng lọc cho chiến dịch này
-					</td>
-				</tr>
-			`;
-			screeningData = [];
-		}
-	})
-	.catch(error => {
-		console.error('Error loading screenings:', error);
-		tableBody.innerHTML = `
-			<tr>
-				<td colspan="6" class="text-center text-danger py-4">
-					Lỗi tải dữ liệu: ${error.message}<br>
-					<small>Hãy mở Developer Tools (F12) để xem chi tiết</small>
-				</td>
-			</tr>
-		`;
-		screeningData = [];
-	});
+@section Scripts {
+	<script src="~/js/medical-records.js" asp-append-version="true"></script>
 }
-
-function renderScreenings(data) {
-	const tableBody = document.getElementById('screeningTableBody');
-
-	if (!data || data.length === 0) {
-		tableBody.innerHTML = `
-			<tr>
-				<td colspan="6" class="text-center text-muted py-4">
-					Không tìm thấy kết quả khớp với tìm kiếm
-				</td>
-			</tr>
-		`;
-		return;
-	}
-
-	let html = '';
-	data.forEach(screening => {
-		const rowClass = screening.screeningResult === 'Failed' ? 'table-danger-subtle' : '';
-		const statusBadge = screening.screeningResult === 'Passed' 
-			? '<span class="badge-status badge-active">✓ ĐẠT ĐIỀU KIỆN</span>'
-			: '<span class="badge-status badge-fail">✕ KHÔNG ĐẠT</span>';
-		const bloodVolumeDisplay = screening.bloodVolume || '-';
-
-		html += `
-			<tr class="${rowClass}" style="background-color: ${rowClass ? '#fffafa' : ''};">
-				<td class="fw-semibold">${screening.volunteerId}</td>
-				<td>${screening.volunteerName}</td>
-				<td>${statusBadge}</td>
-				<td class="text-center">${bloodVolumeDisplay}</td>
-				<td>
-					${screening.rejectionReason ? `<span class="text-danger small">${screening.rejectionReason}</span>` : '<span class="text-muted">-</span>'}
-				</td>
-				<td class="text-end">
-					<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#examModal">
-						${screening.screeningResult === 'Passed' ? 'Cập nhật' : 'Sửa ghi chú'}
-					</button>
-				</td>
-			</tr>
-		`;
-	});
-	tableBody.innerHTML = html;
-}
-
-function filterScreenings(searchTerm) {
-	if (!searchTerm) {
-		// Nếu search rỗng, hiển thị tất cả
-		renderScreenings(screeningData);
-		return;
-	}
-
-	// Lọc dữ liệu theo tên hoặc mã TNV
-	const filtered = screeningData.filter(screening => {
-		const name = screening.volunteerName.toLowerCase();
-		const id = screening.volunteerId.toString().toLowerCase();
-		return name.includes(searchTerm) || id.includes(searchTerm);
-	});
-
-	renderScreenings(filtered);
-}
-</script>

@@ -11,6 +11,7 @@ namespace WebsiteMedical.Controllers
         private readonly string STAFF_SCHEDULE_API = $"{BASE_URL}/api/Staff/schedule";
         private readonly string CAMPAIGN_API = $"{BASE_URL}/api/Campaign/list";
         private readonly string HEALTH_SCREENING_API = $"{BASE_URL}/api/healthscreening/list";
+        private readonly string USER_API = $"{BASE_URL}/api/User";
 
         [HttpGet]
         [Route("Staff")]
@@ -231,6 +232,54 @@ namespace WebsiteMedical.Controllers
                 {
                     success = false,
                     message = $"Lỗi khi tải dữ liệu: {ex.Message}"
+                });
+            }
+        }
+
+        // API Proxy: GET user details (same-origin endpoint, avoids browser CORS)
+        [HttpGet]
+        [Route("api/staff/users/{userId:int}")]
+        public async Task<IActionResult> GetUser(int userId)
+        {
+            try
+            {
+                using var client = new HttpClient(new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                });
+
+                // Match the other same-origin API proxies: use the login cookie first.
+                // A stale localStorage bearer header should not override this token.
+                var token = Request.Cookies["AccessToken"];
+                if (string.IsNullOrWhiteSpace(token)
+                    && Request.Headers.TryGetValue("Authorization", out var authHeader)
+                    && !string.IsNullOrWhiteSpace(authHeader))
+                {
+                    var authValue = authHeader.ToString().Trim();
+                    token = authValue.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                        ? authValue[7..].Trim()
+                        : authValue;
+                }
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await client.GetAsync($"{USER_API}/{userId}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return new ContentResult
+                {
+                    StatusCode = (int)response.StatusCode,
+                    Content = responseContent,
+                    ContentType = "application/json"
+                };
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(502, new
+                {
+                    success = false,
+                    message = $"Không thể kết nối đến API Backend: {ex.Message}"
                 });
             }
         }
