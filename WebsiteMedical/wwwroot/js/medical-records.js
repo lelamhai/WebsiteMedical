@@ -43,11 +43,30 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('examModal').addEventListener('show.bs.modal', function(event) {
         const updateButton = event.relatedTarget;
         const userId = updateButton?.dataset.userId;
+        const screeningId = updateButton?.dataset.screeningId;
+        document.getElementById('screeningId').value = screeningId || '';
+
+        const screening = screeningData.find(item =>
+            String(item.healthScreeningId ?? item.screeningId ?? item.id) === String(screeningId));
+        const isFailed = screening?.screeningResult === 'Failed';
+        document.getElementById('resultPass').checked = !isFailed;
+        document.getElementById('resultFail').checked = isFailed;
+        document.querySelectorAll('#failReasonSection input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        document.getElementById('rejectionReasonNote').value = screening?.rejectionReason || '';
+        updateExamSections();
 
         if (userId) {
             loadVolunteerInfo(userId);
         }
     });
+
+    document.getElementById('saveExamResultBtn').addEventListener('click', saveHealthScreeningResult);
+    document.querySelectorAll('input[name="examResult"]').forEach(radio => {
+        radio.addEventListener('change', updateExamSections);
+    });
+    updateExamSections();
 });
 
 function loadHealthScreenings(campaignId) {
@@ -120,6 +139,7 @@ function renderScreenings(data) {
 
     let html = '';
     data.forEach(screening => {
+            const screeningId = screening.healthScreeningId ?? screening.screeningId ?? screening.id;
             const statusConfig = {
                 Passed: {
                     rowClass: '',
@@ -152,7 +172,7 @@ function renderScreenings(data) {
                     ${screening.rejectionReason ? `<span class="text-danger small">${screening.rejectionReason}</span>` : '<span class="text-muted">-</span>'}
                 </td>
                 <td class="text-end">
-                    <button class="btn btn-outline-secondary btn-sm" data-user-id="${screening.volunteerId}" data-bs-toggle="modal" data-bs-target="#examModal">
+                    <button class="btn btn-outline-secondary btn-sm" data-user-id="${screening.volunteerId}" data-screening-id="${screeningId ?? ''}" data-bs-toggle="modal" data-bs-target="#examModal">
                         Cập nhật
                     </button>
                 </td>
@@ -160,6 +180,76 @@ function renderScreenings(data) {
         `;
     });
     tableBody.innerHTML = html;
+}
+
+function updateExamSections() {
+    const isPassed = document.getElementById('resultPass').checked;
+    document.getElementById('failReasonSection').classList.toggle('d-none', isPassed);
+    document.getElementById('passVolumeSection').classList.toggle('d-none', !isPassed);
+}
+
+async function saveHealthScreeningResult() {
+    const screeningId = document.getElementById('screeningId').value;
+    const isPassed = document.getElementById('resultPass').checked;
+    const screeningResult = isPassed ? 'Passed' : 'Failed';
+    const reasons = Array.from(document.querySelectorAll('#failReasonSection input[type="checkbox"]:checked'))
+        .map(checkbox => checkbox.value.trim())
+        .filter(Boolean);
+    const note = document.getElementById('rejectionReasonNote').value.trim();
+    const rejectionReason = isPassed ? '' : [...reasons, ...(note ? [note] : [])].join('-');
+
+    if (!/^\d+$/.test(screeningId)) {
+        alert('Không tìm thấy mã hồ sơ sàng lọc để cập nhật.');
+        return;
+    }
+
+    if (!isPassed && !rejectionReason) {
+        alert('Vui lòng chọn hoặc nhập lý do không đạt.');
+        return;
+    }
+
+    const saveButton = document.getElementById('saveExamResultBtn');
+    saveButton.disabled = true;
+
+    try {
+        const response = await fetch(`/api/staff/health-screenings/${encodeURIComponent(screeningId)}`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ screeningResult, rejectionReason })
+        });
+        const responseText = await response.text();
+        let result = {};
+        try {
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch {
+            result = { message: responseText };
+        }
+
+        if (!response.ok) {
+            throw new Error(result.message || result.Message || `HTTP error! status: ${response.status}`);
+        }
+
+        const record = screeningData.find(item =>
+            String(item.healthScreeningId ?? item.screeningId ?? item.id) === String(screeningId));
+        if (record) {
+            record.screeningResult = screeningResult;
+            record.rejectionReason = rejectionReason;
+        }
+        renderScreenings(screeningData);
+
+        const modalElement = document.getElementById('examModal');
+        bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+        alert(result.message || result.Message || 'Đã cập nhật kết quả khám thành công.');
+    } catch (error) {
+        console.error('Error updating health screening:', error);
+        alert(`Không thể lưu kết quả khám: ${error.message}`);
+    } finally {
+        saveButton.disabled = false;
+    }
 }
 
 function filterScreenings(searchTerm) {
