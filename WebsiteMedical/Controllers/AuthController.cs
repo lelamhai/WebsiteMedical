@@ -9,6 +9,12 @@ namespace WebsiteMedical.Controllers
     {
         public const string BASE_URL = "https://localhost:7182";
         private readonly string LOGIN = $"{BASE_URL}/api/Auth/login";
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public AuthController(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
 
         [HttpGet]
         [Route("")]
@@ -125,6 +131,83 @@ namespace WebsiteMedical.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpGet]
+        [Route("register")]
+        [Route("Auth/Register")]
+        public IActionResult Register()
+        {
+            return View(new RegisterViewModel());
+        }
+
+        [HttpPost]
+        [Route("register")]
+        [Route("Auth/Register")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var payload = new
+                {
+                    email = model.Email.Trim(),
+                    password = model.Password,
+                    firstName = model.FirstName.Trim(),
+                    lastName = model.LastName.Trim(),
+                    gender = model.Gender
+                };
+
+                using var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+                var client = _httpClientFactory.CreateClient("MedicalApiClient");
+                using var response = await client.PostAsync("api/Auth/register", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    model.IsSuccess = true;
+                    model.Message = GetApiMessage(responseContent) ?? "User registered successfully.";
+                }
+                else
+                {
+                    model.ErrorMessage = GetApiMessage(responseContent) ?? "Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.";
+                }
+            }
+            catch (Exception)
+            {
+                model.ErrorMessage = $"Không thể kết nối đến máy chủ API ({BASE_URL}). Vui lòng đảm bảo backend đang chạy.";
+            }
+
+            return View(model);
+        }
+
+        private static string? GetApiMessage(string responseContent)
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(responseContent);
+                if (document.RootElement.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var property in document.RootElement.EnumerateObject())
+                    {
+                        if (string.Equals(property.Name, "message", StringComparison.OrdinalIgnoreCase) &&
+                            property.Value.ValueKind == JsonValueKind.String)
+                        {
+                            return property.Value.GetString();
+                        }
+                    }
+                }
+            }
+            catch (JsonException)
+            {
+            }
+
+            return null;
         }
 
         [HttpGet]

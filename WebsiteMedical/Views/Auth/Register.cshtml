@@ -1,0 +1,98 @@
+@model WebsiteMedical.Models.RegisterViewModel
+@{
+	Layout = null;
+	ViewData["Title"] = "Đăng ký tài khoản";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"]</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+</head>
+<body>
+	<div class="auth-container">
+		<main class="auth-card register-card">
+			<div class="auth-form-wrapper">
+				<a href="/" class="brand-badge register-brand">
+					<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+						<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+					</svg>
+					<span>HIẾN MÁU NHÂN ĐẠO</span>
+				</a>
+
+				@if (Model.IsSuccess)
+				{
+					<div class="auth-header">
+						<h1>Đăng ký thành công</h1>
+					</div>
+					<div class="alert-custom alert-success-custom" role="status">@Model.Message</div>
+					<a href="/login" class="btn-submit text-decoration-none">Đến trang đăng nhập</a>
+				}
+				else
+				{
+					<div class="auth-header">
+						<h1>Đăng ký tài khoản</h1>
+						<p>Điền thông tin để tạo tài khoản mới</p>
+					</div>
+
+					@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+					{
+						<div class="alert-custom alert-danger-custom" role="alert">@Model.ErrorMessage</div>
+					}
+
+					<form method="post" action="/register">
+						@Html.AntiForgeryToken()
+
+						<div class="form-group">
+							<label class="form-label" asp-for="Email">Địa chỉ Email</label>
+							<input asp-for="Email" type="email" class="register-input" placeholder="example@gmail.com" autocomplete="email" />
+							<span asp-validation-for="Email" class="validation-msg"></span>
+						</div>
+
+						<div class="form-group">
+							<label class="form-label" asp-for="Password">Mật khẩu</label>
+							<input asp-for="Password" type="password" class="register-input" placeholder="Nhập mật khẩu" autocomplete="new-password" />
+							<span asp-validation-for="Password" class="validation-msg"></span>
+						</div>
+
+						<div class="form-group">
+							<label class="form-label" asp-for="FirstName">Họ</label>
+							<input asp-for="FirstName" class="register-input" placeholder="Nhập họ" autocomplete="family-name" />
+							<span asp-validation-for="FirstName" class="validation-msg"></span>
+						</div>
+
+						<div class="form-group">
+							<label class="form-label" asp-for="LastName">Tên</label>
+							<input asp-for="LastName" class="register-input" placeholder="Nhập tên" autocomplete="given-name" />
+							<span asp-validation-for="LastName" class="validation-msg"></span>
+						</div>
+
+						<div class="form-group">
+							<label class="form-label" asp-for="Gender">Giới tính</label>
+							<select asp-for="Gender" class="register-input">
+								<option value="">Chọn giới tính</option>
+								<option value="Nam">Nam</option>
+								<option value="Nữ">Nữ</option>
+							</select>
+							<span asp-validation-for="Gender" class="validation-msg"></span>
+						</div>
+
+						<button type="submit" class="btn-submit">Đăng ký</button>
+					</form>
+
+					<div class="auth-footer">
+						<span>Đã có tài khoản? </span>
+						<a href="/login">Đăng nhập</a>
+					</div>
+				}
+			</div>
+		</main>
+	</div>
+</body>
+</html>
